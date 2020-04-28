@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: manual-indexer
+  labels:
+    app: odc
+  annotations:
+    iam.amazonaws.com/role: ama-terraform-odc-dev-eks-jhub
+spec:
+  containers:
+  - name: datacube-core-container
+    image: jcrattzama/odc_manual_indexer:v2
+    env:
+    - name: DATACUBE_CONFIG_PATH
+      value: "/opt/custom-config.conf"
+    - name: DB_DATABASE
+      valueFrom:
+        secretKeyRef:
+          name: database-credentials
+          key: DB_DATABASE
+    - name: DB_HOSTNAME
+      valueFrom:
+        secretKeyRef:
+          name: database-credentials
+          key: DB_HOSTNAME
+    - name: DB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: database-credentials
+          key: DB_USERNAME
+    - name: DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: database-credentials
+          key: DB_PASSWORD
+    - name: DB_PORT
+      valueFrom:
+        secretKeyRef:
+          name: database-credentials
+          key: DB_PORT
+    - name: AWS_ACCESS_KEY_ID
+      valueFrom:
+        secretKeyRef:
+          name: aws-credentials
+          key: AWS_ACCESS_KEY_ID
+    - name: AWS_SECRET_ACCESS_KEY
+      valueFrom:
+        secretKeyRef:
+          name: aws-credentials
+          key: AWS_SECRET_ACCESS_KEY
+    ports:
+    - containerPort: 80
+    command: ["/bin/sh", "-ec", "docker-entrypoint.sh && while :; do echo '.'; sleep 5 ; done"]
+  imagePullSecrets:
+    - name: regcred
+  nodeSelector:
+    beta.kubernetes.io/os: linux
