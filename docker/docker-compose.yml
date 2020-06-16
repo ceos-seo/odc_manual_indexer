@@ -1,0 +1,47 @@
+version: '3.4'
+networks: 
+  default:
+    external:
+      name: odc
+services:
+  manual:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile
+      # args:
+        # ADMIN_EMAIL: ${ADMIN_EMAIL}
+        # DB_HOSTNAME: ${DB_HOSTNAME}
+        # DB_DATABASE: ${DB_DATABASE}
+        # DB_USER: ${DB_USER}
+        # DB_PASSWORD: ${DB_PASSWORD}
+        # DB_PORT: ${DB_PORT}
+        # PORT: ${PORT}
+        # WORKDIR: ${UI_WORKDIR}
+    # ports:
+      # - "${PORT}:80"
+    # volumes:
+    #   - ../../apps:${UI_WORKDIR}/apps
+    #   - ../../utils:${UI_WORKDIR}/utils
+    #   - ../../db_backups:${UI_WORKDIR}/db_backups
+    #   - ../../data_cube_ui:${UI_WORKDIR}/data_cube_ui
+    #   - ../../static:${UI_WORKDIR}/static
+    #   - ../../scripts:${UI_WORKDIR}/scripts
+    #   - ../../templates:${UI_WORKDIR}/templates
+    # env_file:
+    #   - .env
+    # depends_on:
+    #   [django_db]
+  # redis:
+  #   image: redis
+  # django_db:
+  #   image: postgres:10-alpine
+  #   environment:
+  #     - POSTGRES_DB=${DB_DATABASE}
+  #     - POSTGRES_USER=${DB_USER}
+  #     - POSTGRES_PASSWORD=${DB_PASSWORD}
+  #   expose:
+  #     - ${DB_PORT}
+  #   # ports:
+  #     # - ${DB_PORT}:5432
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
