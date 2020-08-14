@@ -42,3 +42,5 @@ Here is a table showing the paths, descriptions, and commands for indexing data 
 | Path                       | Description                               | Command                                                              |
 |----------------------------|-------------------------------------------|----------------------------------------------------------------------|
 | s3://sentinel-s2-l1c/tiles | AWS Open Data Sentinel 2 (Requester Pays) | python3 ls_public_bucket.py sentinel-s2-l1c -p tiles --suffix=".xml" |
+| s3://deafrica-data/usgs/c1/l7 | Landsat 7 data for Africa (from GA - minimize queries) | python3 ls7_public_bucket.py deafrica-data -p usgs/c1/l7 --suffix=".xml"
+| s3://deafrica-data/usgs/c1/l8 | Landsat 8 data for Africa (from GA - minimize queries) | python3 ls8_public_bucket.py deafrica-data -p usgs/c1/l8 --suffix=".xml"
