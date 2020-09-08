@@ -2,13 +2,21 @@
 
 This purpose of this repository is to provide convenient means of indexing data for an ODC installation.
 
-# Indexing with Docker 
+## Starting with Docker 
 
-`docker run -e DB_DATABASE=DB_DATABASE -e DB_HOSTNAME`
+Run these commands to create Docker secrets for your AWS credentials.
 
-# Indexing with Kubernetes.
+`docker swarm init`
+`echo <your-aws-access-key-id> | docker secret create AWS_ACCESS_KEY_ID -`
+`echo <your-aws-secret-access-key> | docker secret create AWS_SECRET_ACCESS_KEY -`
 
-First, run these commands:
+In `docker/docker-compose.dev.yml`, set `DB_HOSTNAME` to the hostname of the database server, set `DB_DATABASE` to the name of the ODC database, set `DB_USER` to the name of the user for the ODC database, set `DB_PASSWORD` to the password for the user, and set `DB_PORT` to the port that the ODC database is aviailable on (default for Postgres is `5432`).
+
+Finally, run `docker-compose -f docker/docker-compose.yml up -d --build` from the top-level directory to start the indexer and then run `docker-compose -f docker/docker-compose.yml exec manual bash` to connect to the container.
+
+## Starting with Kubernetes
+
+Run these commands to create k8s secrets for your AWS and ODC database credentials:
 ```
 kubectl -n <namespace> create secret generic database-credentials \
 --from-literal=DB_DATABASE=<ODC database name> \
@@ -31,16 +39,27 @@ Run `kubectl -n odchub get pods` to check if the new pods are running.
 
 Run `kubectl -n odchub exec -it <manual-indexer-pod-name> /bin/bash` to enter a bash shell on the manual indexer pod.
 
-Index the data.
+## Indexing data
+
 Product definitions and indexing scripts are in directories in the starting directory - `/Datacube/S3_scripts`. These directories are named for the satellites - such as Landsat. You can run `wget` to retrieve desired, missing product definition YAML files from [here](https://github.com/opendatacube/datacube-core/tree/develop/docs/config_samples/dataset_types).
 
-Example: To index Landsat 8 data in the deafrica-data S3 bucket, run the following command in the `S3_scripts` directory:
+Example: To index Landsat 8 data in the deafrica-data S3 bucket, run the following commands in the `S3_scripts` directory:
+`datacube product add Landsat/prod_defs/ls8_usgs_sr_scene.yaml`
 `python3 Landsat/index_scripts/ls8_public_bucket.py <bucket> -p usgs/c1/l8 --suffix=".xml"`.
 
-Here is a table showing the paths, descriptions, and commands for indexing data on remote data sources.
+Here is a table of products.
+To add a product with a product definition at `<path>`, run `datacube product add <path>`
 
-| Path                       | Description                               | Command                                                              |
-|----------------------------|-------------------------------------------|----------------------------------------------------------------------|
-| s3://sentinel-s2-l1c/tiles | AWS Open Data Sentinel 2 (Requester Pays) | python3 ls_public_bucket.py sentinel-s2-l1c -p tiles --suffix=".xml" |
+| Product | <div style="width:200px"></div>Description | Path |
+|---------|---------------|------|
+| ls5_usgs_sr_scene | Landsat 5 Collection 1 Level 2 (SR), 30m Resolution, UTM Projection (EPSG:4326) | Landsat<br>/prod_defs<br>/ls5_usgs_sr_scene |
+| ls7_usgs_sr_scene | Landsat 7 Collection 1 Level 2 (SR), 30m Resolution, UTM Projection (EPSG:4326) | Landsat<br>/prod_defs<br>/ls7_usgs_sr_scene |
+| ls8_usgs_sr_scene | Landsat 8 Collection 1 Level 2 (SR), 30m Resolution, UTM Projection (EPSG:4326) | Landsat<br>/prod_defs<br>/ls8_usgs_sr_scene |
+
+Here is a table showing, for each product, the paths, descriptions, and commands for indexing data on remote data sources.
+
+| Data Path | <div style="width:100px"></div>Description | Command |
+|------|-------------|---------|
+| s3://sentinel-s2-l1c/tiles | AWS Open Data Sentinel 2 Level 1C (Requester Pays) |  |
 | s3://deafrica-data/usgs/c1/l7 | Landsat 7 data for Africa (from GA - minimize queries) | python3 ls7_public_bucket.py deafrica-data -p usgs/c1/l7 --suffix=".xml"
-| s3://deafrica-data/usgs/c1/l8 | Landsat 8 data for Africa (from GA - minimize queries) | python3 ls8_public_bucket.py deafrica-data -p usgs/c1/l8 --suffix=".xml"
+| s3://deafrica-data/usgs/c1/l8 | Landsat 8 data for Africa (from GA - minimize queries) | python3 Landsat/index_scripts/ls8_public_bucket.py deafrica-data -p usgs/c1/l8 --suffix=".xml" |

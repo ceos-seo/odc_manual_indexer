@@ -1,16 +1,22 @@
-version: '3.4'
-networks: 
-  default:
-    external:
-      name: odc
+version: '3.8'
 services:
   manual:
     build:
       context: ../
       dockerfile: docker/Dockerfile
+    # image: jcrattzama/odc_manual_indexer:v2
+    command: "tail -f /dev/null"
     environment:
         - DB_HOSTNAME=odc-db
         - DB_DATABASE=datacube
         - DB_USER=dc_user
         - DB_PASSWORD=localuser1234
         - DB_PORT=5432
+        - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+        - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    networks:
+      odc: {}
+networks: 
+  odc:
+    external: true
+    name: odc

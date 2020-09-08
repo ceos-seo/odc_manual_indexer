@@ -1,5 +1,4 @@
-FROM opendatacube/datacube-index
-#opendatacube/datacube-core:1.7
+FROM opendatacube/datacube-core:1.7
 
 ENV CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
 
@@ -8,17 +7,12 @@ WORKDIR /Datacube/S3_scripts
 RUN apt-get update
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
-# RUN pip3 install awscli
-# RUN pip3 install boto3 ruamel.yaml
-# RUN apt-get install ca-certificates
-#RUN apt-get install nano
 
+RUN apt-get install ca-certificates
 RUN echo "\nexport CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> ~/.profile
 RUN . ~/.profile
 
 RUN apt-get install wget
-RUN wget https://raw.githubusercontent.com/opendatacube/datacube-dataset-config/master/scripts/index_from_s3_bucket.py
-# RUN mkdir -p $HOME/Datacube/S3_scripts
 
 COPY Landsat/ Landsat/
 
