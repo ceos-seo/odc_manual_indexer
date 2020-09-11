@@ -4,15 +4,9 @@ This purpose of this repository is to provide convenient means of indexing data 
 
 ## Starting with Docker 
 
-Run these commands to create Docker secrets for your AWS credentials.
+In `docker/.env`, set `DB_HOSTNAME` to the hostname of the database server, set `DB_DATABASE` to the name of the ODC database, set `DB_USER` to the name of the user for the ODC database, set `DB_PASSWORD` to the password for the user, set `DB_PORT` to the port that the ODC database is aviailable on (default for Postgres is `5432`), set `AWS_ACCESS_KEY_ID` to your AWS access key ID, and set `AWS_SECRET_ACCESS_KEY` to your AWS secret access key.
 
-`docker swarm init`
-`echo <your-aws-access-key-id> | docker secret create AWS_ACCESS_KEY_ID -`
-`echo <your-aws-secret-access-key> | docker secret create AWS_SECRET_ACCESS_KEY -`
-
-In `docker/docker-compose.dev.yml`, set `DB_HOSTNAME` to the hostname of the database server, set `DB_DATABASE` to the name of the ODC database, set `DB_USER` to the name of the user for the ODC database, set `DB_PASSWORD` to the password for the user, and set `DB_PORT` to the port that the ODC database is aviailable on (default for Postgres is `5432`).
-
-Finally, run `docker-compose -f docker/docker-compose.yml up -d --build` from the top-level directory to start the indexer and then run `docker-compose -f docker/docker-compose.yml exec manual bash` to connect to the container.
+Finally, run `make up` from the top-level directory to start the indexer and then run `make ssh` to connect to the container through a bash shell.
 
 ## Starting with Kubernetes
 

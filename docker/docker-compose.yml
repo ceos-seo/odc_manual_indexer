@@ -4,14 +4,13 @@ services:
     build:
       context: ../
       dockerfile: docker/Dockerfile
-    # image: jcrattzama/odc_manual_indexer:v2
     command: "tail -f /dev/null"
     environment:
-        - DB_HOSTNAME=odc-db
-        - DB_DATABASE=datacube
-        - DB_USER=dc_user
-        - DB_PASSWORD=localuser1234
-        - DB_PORT=5432
+        - DB_HOSTNAME=${DB_HOSTNAME}
+        - DB_DATABASE=${DB_DATABASE}
+        - DB_USER=${DB_USER}
+        - DB_PASSWORD=${DB_PASSWORD}
+        - DB_PORT=${DB_PORT}
         - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
         - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     networks:
