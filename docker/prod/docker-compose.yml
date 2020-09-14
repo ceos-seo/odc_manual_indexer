@@ -1,9 +1,10 @@
+# Production
 version: '3.8'
 services:
   manual:
     build:
-      context: ../
-      dockerfile: docker/Dockerfile
+      context: ../../
+      dockerfile: docker/prod/Dockerfile
     command: "tail -f /dev/null"
     environment:
         - DB_HOSTNAME=${DB_HOSTNAME}

@@ -1,0 +1,25 @@
+# Development
+version: '3.8'
+services:
+  manual:
+    build:
+      context: ../../
+      dockerfile: docker/dev/Dockerfile
+    command: "tail -f /dev/null"
+    environment:
+        - DB_HOSTNAME=odc
+        - DB_DATABASE=${DB_DATABASE}
+        - DB_USER=${DB_USER}
+        - DB_PASSWORD=${DB_PASSWORD}
+        - DB_PORT=5432
+        - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+        - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - ../../datasets:/Datacube/manual_indexer
+  odc:
+    image: postgres:10-alpine
+    environment:
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      

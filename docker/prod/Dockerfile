@@ -2,7 +2,7 @@ FROM opendatacube/datacube-core:1.7
 
 ENV CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
 
-WORKDIR /Datacube/S3_scripts
+WORKDIR /Datacube
 
 RUN apt-get update
 COPY requirements.txt requirements.txt
@@ -14,10 +14,12 @@ RUN . ~/.profile
 
 RUN apt-get install wget
 
-COPY Landsat/ Landsat/
-
 COPY docker/entrypoint.sh ./entrypoint.sh
 RUN chmod 744 entrypoint.sh
 
-ENTRYPOINT ["./entrypoint.sh"]
+WORKDIR /Datacube/manual_indexer
+
+COPY datasets/ .
+
+ENTRYPOINT ["/Datacube/entrypoint.sh"]
 CMD ["tail -f /dev/null"]
