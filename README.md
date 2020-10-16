@@ -81,7 +81,7 @@ Here is a table showing, for each product, a description, the resolution, the pr
 | ls7_usgs_sr_scene | Landsat 7 Collection 1 Level 2 (SR) | 30m | EPSG:4326 | Landsat<br>/prod_defs<br>/ls7_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
 | ls8_usgs_sr_scene | Landsat 8 Collection 1 Level 2 (SR) | 30m | EPSG:4326 | Landsat<br>/prod_defs<br>/ls8_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
 | jers_sar_mosaic | JERS-1 SAR (HH) mosaics generated for use in the Data Cube | 25m | EPSG:4326 | JERS-1<br>/prod_defs<br>/jers_sar_mosaic | [Origin](https://github.com/digitalearthafrica/config/blob/master/products/jers_sar_mosaic.yaml) |
-| s2_ard_scene | Sentinel-2 Level 2A | 10-20m | varies | Sentinel-2<br>/L2A<br>/prod_defs<br>/s2_ard_scene_prod_def.yaml | N/A |
+| s2_ard_scene | Sentinel-2 Level 2A (from Copernicus Open Access Hub) | 10-20m | varies | Sentinel-2<br>/L2A<br>/prod_defs<br>/s2_ard_scene_prod_def.yaml | N/A |
 
 >### <a name="indexable_remote_datasets"></a> Indexable Remote Datasets
 -------

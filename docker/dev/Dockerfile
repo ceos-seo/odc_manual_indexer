@@ -1,4 +1,4 @@
-FROM opendatacube/datacube-core:1.7
+FROM opendatacube/datacube-core:1.8
 
 ENV CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
 

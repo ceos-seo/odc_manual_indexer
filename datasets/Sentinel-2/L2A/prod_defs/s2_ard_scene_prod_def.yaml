@@ -1,0 +1,95 @@
+name: s2_ard_scene
+description: Sentinel 2 L2A scenes processed by iMMAP using force-l2ps script. 10m and 20m UTM based projection.
+metadata_type: eo
+
+metadata:
+    platform:
+        code: SENTINEL_2
+    instrument:
+        name: MSI
+    processing_level: L2A
+    product_type: force-l2ps
+    format:
+        name: GeoTiff
+
+measurements:
+    - name: LEVEL2_S2_BOA_b1
+      aliases: [coastal_aerosol]
+      dtype: int16
+      nodata: -9999
+      units: 'reflectance'
+    - name: LEVEL2_S2_BOA_b2
+      aliases: [blue]
+      dtype: int16
+      nodata: -9999
+      units: 'reflectance'
+    - name: LEVEL2_S2_BOA_b3
+      aliases: [green]
+      dtype: int16
+      nodata: -9999
+      units: 'reflectance'
+    - name: LEVEL2_S2_BOA_b4
+      aliases: [red]
+      dtype: int16
+      nodata: -9999
+      units: 'reflectance'
+    - name: LEVEL2_S2_BOA_b5
+      aliases: [rededge1]
+      dtype: int16
+      nodata: -9999
+      units: 'reflectance'
+    - name: LEVEL2_S2_BOA_b6
+      aliases: [rededge2]
+      dtype: int16
+      nodata: -9999
+      units: 'reflectance'
+    - name: LEVEL2_S2_BOA_b7
+      aliases: [rededge3]
+      dtype: int16
+      nodata: -9999
+      units: 'reflectance'
+    - name: LEVEL2_S2_BOA_b8
+      aliases: [nir]
+      dtype: int16
+      nodata: -9999
+      units: 'reflectance'
+    - name: LEVEL2_S2_BOA_b9
+      aliases: [water_vapor]
+      dtype: int16
+      nodata: -9999
+      units: 'reflectance'
+    - name: LEVEL2_S2_BOA_b10
+      aliases: [swir_cirrus]
+      dtype: int16
+      nodata: -9999
+      units: 'reflectance'
+    - name: LEVEL2_S2_QAI
+      aliases: [qai]
+      dtype: int16
+      nodata: 1
+      units: '1'
+    # - name: fmask
+    #   dtype: int16
+    #   nodata: 0
+    #   units: '1'
+    #   flags_definition:
+    #     slc:
+    #       bits: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    #       description: Scene classification
+    #       values:
+    #         0: Valid data (0-valid, 1-no data)
+    #         1: Cloud state
+    #         2: Cloud state
+    #         3: Cloud shadow flag
+    #         4: Snow flag
+    #         5: Water flag
+    #         6: Aerosol state
+    #         7: Aerosol state
+    #         8: Subzero flag
+    #         9: Saturation flag
+    #         10: High sun zenith flag
+    #         11: Illumination state
+    #         12: Illumination state
+    #         13: Slope flag
+    #         14: Water vapor flag
+    #         15: Empty
