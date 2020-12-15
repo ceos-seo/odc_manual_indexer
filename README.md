@@ -11,10 +11,13 @@ This purpose of this repository is to provide convenient means of indexing data 
     * [Products](#products)
     * [Indexable Remote Datasets](#indexable_remote_datasets)
     * [Indexing Scripts](#indexing_scripts)
+<br>
 
 ## <a name="starting"></a> Starting the Indexer
 -------
+
 The indexer can be run in Docker or in Kubernetes. Instructions for both are included below.
+<br><br>
 
 >### <a name="starting_docker"></a> Starting with Docker 
 -------
@@ -24,6 +27,7 @@ In `docker/.env`, set `DB_HOSTNAME` to the hostname of the database server, set 
 Finally, run `make up` from the top-level directory to start the indexer and then run `make ssh` to connect to the container through a bash shell.
 
 **Developers**: Run the **dev-\*** Make commands to run a development environment (e.g. **dev-up**, **dev-ssh**). The development environment uses a non-peristent ODC database tied to the lifecycle of the docker-compose collection, so Make targets like **dev-down** or **dev-restart** clears this database.
+<br><br>
 
 >### <a name="starting_k8s"></a> Starting with Kubernetes
 -------
@@ -56,6 +60,7 @@ Run this command to create the manual indexer pod: `kubectl apply -n <namespace>
 Run `kubectl -n <namespace> get pods` to check if the new pods are running.
 
 Run `kubectl -n <namespace> exec -it <manual-indexer-pod-name> bash` to enter a bash shell on the manual indexer pod.
+<br><br>
 
 ## <a name="indexing"></a> Indexing Data
 -------
@@ -69,19 +74,22 @@ Example: To index Landsat 8 data in the deafrica-data S3 bucket, run the followi
 To add a product with a product definition at `<path>`, run `datacube product add <path>`
 
 If there is no indexing script for a product, you should be able to index the data with a command like `datacube dataset add <path-to-dataset-documents>`. For example, commonly you will have a directory containing directories of scenes - 1 directory per scene - which each contain a dataset document. If this dataset document is called `metadata.yaml`, then run `datacube dataset add **/metadata.yaml` in the directory containing these scene directories.
+<br><br>
 
 >### <a name="products"></a> Products
 -------
 
 Here is a table showing, for each product, a description, the resolution, the projection, the path to the product definition file, and the origin of this file.
 
-| Product | <div style="width:200px"></div>Description | Resolution | Projection | Product Definition Path | Origin |
-|-----|-----|-----|-----|-----|-----|
-| ls5_usgs_sr_scene | Landsat 5 Collection 1 Level 2 (SR) | 30m | EPSG:4326 | Landsat<br>/prod_defs<br>/ls5_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
-| ls7_usgs_sr_scene | Landsat 7 Collection 1 Level 2 (SR) | 30m | EPSG:4326 | Landsat<br>/prod_defs<br>/ls7_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
-| ls8_usgs_sr_scene | Landsat 8 Collection 1 Level 2 (SR) | 30m | EPSG:4326 | Landsat<br>/prod_defs<br>/ls8_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
-| jers_sar_mosaic | JERS-1 SAR (HH) mosaics generated for use in the Data Cube | 25m | EPSG:4326 | JERS-1<br>/prod_defs<br>/jers_sar_mosaic | [Origin](https://github.com/digitalearthafrica/config/blob/master/products/jers_sar_mosaic.yaml) |
-| s2_ard_scene | Sentinel-2 Level 2A (from Copernicus Open Access Hub) | 10-20m | varies | Sentinel-2<br>/L2A<br>/prod_defs<br>/s2_ard_scene_prod_def.yaml | N/A |
+| Dataset Type | Product | <div style="width:200px"></div>Description | Resolution | Projection | Product Definition Path | Origin |
+|-----|-----|-----|-----|-----|-----|-----|
+| Landsat 5 Collection 1 Level 2 (SR) | ls5_usgs_sr_scene | N/A | 30m | EPSG:4326 | Landsat/prod_defs/ls5_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
+| Landsat 7 Collection 1 Level 2 (SR) | ls7_usgs_sr_scene | N/A | 30m | EPSG:4326 | Landsat/prod_defs/ls7_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
+| Landsat 8 Collection 1 Level 2 (SR) | ls8_usgs_sr_scene | N/A | 30m | EPSG:4326 | Landsat/prod_defs/ls8_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
+| JERS-1 SAR (HH) | jers_sar_mosaic | N/A | 25m | EPSG:4326 | JERS-1/prod_defs/jers_sar_mosaic | [Origin](https://github.com/digitalearthafrica/config/blob/master/products/jers_sar_mosaic.yaml) |
+| Sentinel-2 Level 2A (Copernicus Format) | s2_ard_scene | from Copernicus Open Access Hub | 10-20m | varies | Sentinel-2/L2A/prod_defs/s2_ard_scene_prod_def.yaml | N/A |
+| Landsat 8 Collection 2 Level 2 (SR) | ls8_l2_c2 | N/A | 30m | EPSG:4326 | Landsat/collection_2/prod_defs/ls8_l2_c2_public_bucket | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
+<br>
 
 >### <a name="indexable_remote_datasets"></a> Indexable Remote Datasets
 -------
@@ -94,15 +102,19 @@ Here is a table showing, for each data source, the dataset type (e.g. Sentinel-2
 | Dataset Type | Path | <div style="width:100px"></div>Description | Command | Products |
 |-----|-----|-----|-----|-----|
 | Sentinel-2 Level 2 | s3://sentinel-s2-l1c/tiles | AWS Open Data Sentinel 2 Level 1C (Requester Pays) | N/A | N/A |
-| Landsat 7 Level 2 | s3://deafrica-data/usgs/c1/l7 | Landsat 7 data for Africa (from GA - minimize queries) | python3 Landsat/index_scripts/ls7_public_bucket.py deafrica-data -p usgs/c1/l7 --suffix=".xml" | ls7_usgs_sr_scene |
-| Landsat 8 Level 2 | s3://deafrica-data/usgs/c1/l8 | Landsat 8 data for Africa (from GA - minimize queries) | python3 Landsat/index_scripts/ls8_public_bucket.py deafrica-data -p usgs/c1/l8 --suffix=".xml" | ls8_usgs_sr_scene |
+| Landsat 7 Collection 1 Level 2 | s3://deafrica-data/usgs/c1/l7 | Landsat 7 data for Africa (from GA - minimize queries) | python3 Landsat/index_scripts/ls7_public_bucket.py deafrica-data -p usgs/c1/l7 <params> --suffix=".xml" | ls7_usgs_sr_scene |
+| Landsat 8 Collection 1 Level 2 | s3://deafrica-data/usgs/c1/l8 | Landsat 8 data for Africa (from GA - minimize queries) | python3 Landsat/index_scripts/ls8_public_bucket.py deafrica-data -p usgs/c1/l8 --suffix=".xml" | ls8_usgs_sr_scene |
+| Landsat 8 Collection 2 Level 2 | s3://usgs-landsat/collection02/level-2/standard/oli-tirs | USGS-hosted Landsat 8 L2 C2 Data (World) | python3 Landsat/index_scripts/ls8_l2_c2_public_bucket.py usgs-landsat -p usgs/c1/l8 --suffix=".xml" | ls8_l2_c2 |
+
+<br>
 
 >### <a name="indexing_scripts"></a> Indexing Scripts
 -------
 
-Here is a table showing, for each indexing script, the dataset type, the path to the script and the calling format (e.g. parameter format), an example, and the origin for the script.
+Here is a table showing, for each indexing script, the dataset type, the path to the script and the calling format (e.g. parameter format), an example, and the origin for the script (what it was based on).
 
 | Dataset Type | Path-Format | Example | Origin |
 |-----|-----|-----|-----|
-| Landsat 7 | Landsat/index_scripts/ls7_public_bucket.py <bucket (S3 bucket name)> -p <path (path in bucket in which to recursively search for Data Cube datasets to index)> --suffix=<string (The file suffix of dataset metadata documents)> | ls7_public_bucket.py data-bucket -p usgs/l7 --suffix=".xml" | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py) |
-| Landsat 8 | Landsat/index_scripts/ls8_public_bucket.py <bucket (S3 bucket name)> -p <path (path in bucket in which to recursively search for Data Cube datasets to index)> --suffix=<string (The file suffix of dataset metadata documents)> | ls8_public_bucket.py data-bucket -p usgs/l8 --suffix=".xml" | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py) |
+| Landsat 7 Collection 1 Level 2 | Landsat/index_scripts/ls7_public_bucket.py <bucket (S3 bucket name)> -p <path (path in bucket in which to recursively search for Data Cube datasets to index)> --suffix=<string (The file suffix of dataset metadata documents)> | ls7_public_bucket.py data-bucket -p usgs/l7 --suffix=".xml" | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py) |
+| Landsat 8 Collection 1 Level 2 | Landsat/index_scripts/ls8_public_bucket.py <bucket (S3 bucket name)> -p <path (path in bucket in which to recursively search for Data Cube datasets to index)> --suffix=<string (The file suffix of dataset metadata documents)> | ls8_public_bucket.py data-bucket -p usgs/l8 --suffix=".xml" | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py) |
+| Landsat 8 Collection 2 Level 2  | Landsat/collection_2/index_scripts/ls8_l2_c2_public_bucket.py <bucket (S3 bucket name)> -p <path (path in bucket in which to recursively search for Data Cube datasets to index)> --suffix=<string (The file suffix of dataset metadata documents)> | python3 Landsat/collection_2/index_scripts/ls8_l2_c2_public_bucket.py usgs-landsat -p collection02/level-2/standard/oli-tirs --suffix="MTL.xml" | [Landsat 7](datasets/Landsat/collection_1/indexing_scripts/ls8_public_bucket.py) |
