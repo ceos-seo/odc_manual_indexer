@@ -314,7 +314,6 @@ def make_xml_doc(xmlstring, bucket_name, object_key):
                     } for image in images
                 }
             },
-
             'lineage': {'source_datasets': {}}
         }
     except KeyError as e:

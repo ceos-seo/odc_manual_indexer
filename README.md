@@ -1,6 +1,7 @@
 # ODC Manual Indexer
 
 This purpose of this repository is to provide convenient means of indexing data for an ODC installation.
+<br><br>
 
 ## Contents
 
@@ -8,19 +9,23 @@ This purpose of this repository is to provide convenient means of indexing data 
     * [Starting with Docker](#starting_docker)
     * [Starting with Kubernetes](#starting_k8s)
 * [Indexing Data](#indexing)
-    * [Products](#products)
-    * [Indexable Remote Datasets](#indexable_remote_datasets)
-    * [Indexing Scripts](#indexing_scripts)
-<br>
+    * [Overview](#indexing_overview)
+    * [Obtaining Information](#info)
+    * [Product Types](#info_product_types)
+    * [Products](#info_products)
+    * [Data Stores](#info_data)
+    * [Indexing](#info_idx)
+    * [Indexing Scripts](#info_idx_scr)
+<br><br>
 
 ## <a name="starting"></a> Starting the Indexer
--------
+-----
 
 The indexer can be run in Docker or in Kubernetes. Instructions for both are included below.
 <br><br>
 
 >### <a name="starting_docker"></a> Starting with Docker 
--------
+-----
 
 In `docker/.env`, set `DB_HOSTNAME` to the hostname of the database server, set `DB_DATABASE` to the name of the ODC database, set `DB_USER` to the name of the user for the ODC database, set `DB_PASSWORD` to the password for the user, set `DB_PORT` to the port that the ODC database is aviailable on (default for Postgres is `5432`), set `AWS_ACCESS_KEY_ID` to your AWS access key ID, and set `AWS_SECRET_ACCESS_KEY` to your AWS secret access key.
 
@@ -30,7 +35,7 @@ Finally, run `make up` from the top-level directory to start the indexer and the
 <br><br>
 
 >### <a name="starting_k8s"></a> Starting with Kubernetes
--------
+-----
 
 Run these commands to create k8s secrets for your AWS and ODC database credentials:
 ```
@@ -63,58 +68,71 @@ Run `kubectl -n <namespace> exec -it <manual-indexer-pod-name> bash` to enter a 
 <br><br>
 
 ## <a name="indexing"></a> Indexing Data
--------
+-----
 
-Product definitions and indexing scripts are in directories in the starting directory - `/Datacube/manual-indexer`. These directories are named for the satellites or constellations (collections) of satellites - such as Landsat. You can run `wget` to retrieve desired, missing product definition YAML files from [here](https://github.com/opendatacube/datacube-core/tree/develop/docs/config_samples/dataset_types).
+>### <a name="indexing_overview"></a> Overview
+-----
 
-Example: To index Landsat 8 data in the deafrica-data S3 bucket, run the following commands in the starting directory:
-`datacube product add Landsat/prod_defs/ls8_usgs_sr_scene.yaml`
-`python3 Landsat/index_scripts/ls8_public_bucket.py <bucket> -p usgs/c1/l8 --suffix=".xml"`.
+There are 4 types of things involved in indexing: product types, products, indexing scripts, and data stores.
 
-To add a product with a product definition at `<path>`, run `datacube product add <path>`
+* Product types can have many products. An example product type is `Landsat 8 Collection 2 Level 2 (SR)` (note that `SR` stands for "surface reflectance").
 
-If there is no indexing script for a product, you should be able to index the data with a command like `datacube dataset add <path-to-dataset-documents>`. For example, commonly you will have a directory containing directories of scenes - 1 directory per scene - which each contain a dataset document. If this dataset document is called `metadata.yaml`, then run `datacube dataset add **/metadata.yaml` in the directory containing these scene directories.
+* Products are particular instances of product types. They may vary from other products with the same product type by (1) which data stores they can index, (2) their resolution, (3) their projection, (4) their measurements (e.g. which spectral bands they index), or otherwise.
+
+* Indexing scripts are Python scripts that allow some remote data stores to be indexed for compatible products. Every product maps to 1 indexing script.
+
+* Data stores are paths (local or remote) that contain data that products may be able to index. There can be many remote data stores that contain data compatible with a product - whether directly or through its indexing script.
+
+How to obtain information about products, indexing scripts, and compatible data stores is explained in the [Obtaining Information](#info) section.
+
+Product definitions and indexing scripts are in directories in the starting directory for the container - `/Datacube/manual_indexer`. These directories are named for the satellites or constellations (collections) of satellites - such as Landsat. You can run `wget` to retrieve desired, missing product definition YAML files from [here](https://github.com/opendatacube/datacube-core/tree/develop/docs/config_samples/dataset_types).
 <br><br>
 
->### <a name="products"></a> Products
--------
+>### <a name="info"></a> Obtaining Information
+-----
 
-Here is a table showing, for each product, a description, the resolution, the projection, the path to the product definition file, and the origin of this file.
+The main script for obtaining information is `utils/show/show.py`. 
 
-| Dataset Type | Product | <div style="width:200px"></div>Description | Resolution | Projection | Product Definition Path | Origin |
-|-----|-----|-----|-----|-----|-----|-----|
-| Landsat 5 Collection 1 Level 2 (SR) | ls5_usgs_sr_scene | N/A | 30m | EPSG:4326 | Landsat/prod_defs/ls5_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
-| Landsat 7 Collection 1 Level 2 (SR) | ls7_usgs_sr_scene | N/A | 30m | EPSG:4326 | Landsat/prod_defs/ls7_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
-| Landsat 8 Collection 1 Level 2 (SR) | ls8_usgs_sr_scene | N/A | 30m | EPSG:4326 | Landsat/prod_defs/ls8_usgs_sr_scene | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
-| JERS-1 SAR (HH) | jers_sar_mosaic | N/A | 25m | EPSG:4326 | JERS-1/prod_defs/jers_sar_mosaic | [Origin](https://github.com/digitalearthafrica/config/blob/master/products/jers_sar_mosaic.yaml) |
-| Sentinel-2 Level 2A (Copernicus Format) | s2_ard_scene | from Copernicus Open Access Hub | 10-20m | varies | Sentinel-2/L2A/prod_defs/s2_ard_scene_prod_def.yaml | N/A |
-| Landsat 8 Collection 2 Level 2 (SR) | ls8_l2_c2 | N/A | 30m | EPSG:4326 | Landsat/collection_2/prod_defs/ls8_l2_c2_public_bucket | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml) |
-<br>
+By default for this and all following commands, only rows which have at least 1 product with a compatible data store indexable through an indexing script are shown. To show all rows for a given command, a `--show_all_rows` or `-a` flag can be specified in the command.
 
->### <a name="indexable_remote_datasets"></a> Indexable Remote Datasets
--------
+To view more information about how to use this script, such as the available commands and the columns in their output tables, run `python3 utils/show/show.py`.
 
-There are many sources of directly indexable data. For example, there are some data sources on S3 - such as the [Landsat 8 Level 1 data on AWS](https://registry.opendata.aws/landsat-8/) - that the Open Data Cube supports indexing, so that whenever data is loaded with `datacube.Datacube.load()`, it is downloaded into memory from the remote data source.
-This is convenient because data is loaded as needed, no storage costs are incurred, and scenes do not need to be ordered from websites like [EarthExplorer](https://earthexplorer.usgs.gov/) or the [Copernicus Open Access Hub](https://scihub.copernicus.eu/). 
+To view more information about a particular command in this script, including the calling format and example usage, run `python3 utils/show/show.py <command> --help`.
+<br><br>
 
-Here is a table showing, for each data source, the dataset type (e.g. Sentinel-2, Landsat 8, etc.), the path to the data, a description, commands for indexing the data, and the compatible products.
+>#### <a name="info_product_types"></a> Product Types
+-----
 
-| Dataset Type | Path | <div style="width:100px"></div>Description | Command | Products |
-|-----|-----|-----|-----|-----|
-| Sentinel-2 Level 2 | s3://sentinel-s2-l1c/tiles | AWS Open Data Sentinel 2 Level 1C (Requester Pays) | N/A | N/A |
-| Landsat 7 Collection 1 Level 2 | s3://deafrica-data/usgs/c1/l7 | Landsat 7 data for Africa (from GA - minimize queries) | python3 Landsat/index_scripts/ls7_public_bucket.py deafrica-data -p usgs/c1/l7 <params> --suffix=".xml" | ls7_usgs_sr_scene |
-| Landsat 8 Collection 1 Level 2 | s3://deafrica-data/usgs/c1/l8 | Landsat 8 data for Africa (from GA - minimize queries) | python3 Landsat/index_scripts/ls8_public_bucket.py deafrica-data -p usgs/c1/l8 --suffix=".xml" | ls8_usgs_sr_scene |
-| Landsat 8 Collection 2 Level 2 | s3://usgs-landsat/collection02/level-2/standard/oli-tirs | USGS-hosted Landsat 8 L2 C2 Data (World) | python3 Landsat/index_scripts/ls8_l2_c2_public_bucket.py usgs-landsat -p usgs/c1/l8 --suffix=".xml" | ls8_l2_c2 |
+To start, try listing the Datacube product types. Run this command from the starting directory: `python3 utils/show/show.py show-product-types`.
 
-<br>
+Other show commands accept product types as the primary argument for narrowing results.
+<br><br>
 
->### <a name="indexing_scripts"></a> Indexing Scripts
--------
+>#### <a name="info_products"></a> Products
+-----
 
-Here is a table showing, for each indexing script, the dataset type, the path to the script and the calling format (e.g. parameter format), an example, and the origin for the script (what it was based on).
+To view a table showing each product's product type, name, description, resolution, projection, and path to the product definition file, run this command from the starting directory: `python3 utils/show/show.py show-products`.
 
-| Dataset Type | Path-Format | Example | Origin |
-|-----|-----|-----|-----|
-| Landsat 7 Collection 1 Level 2 | Landsat/index_scripts/ls7_public_bucket.py <bucket (S3 bucket name)> -p <path (path in bucket in which to recursively search for Data Cube datasets to index)> --suffix=<string (The file suffix of dataset metadata documents)> | ls7_public_bucket.py data-bucket -p usgs/l7 --suffix=".xml" | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py) |
-| Landsat 8 Collection 1 Level 2 | Landsat/index_scripts/ls8_public_bucket.py <bucket (S3 bucket name)> -p <path (path in bucket in which to recursively search for Data Cube datasets to index)> --suffix=<string (The file suffix of dataset metadata documents)> | ls8_public_bucket.py data-bucket -p usgs/l8 --suffix=".xml" | [Origin](https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py) |
-| Landsat 8 Collection 2 Level 2  | Landsat/collection_2/index_scripts/ls8_l2_c2_public_bucket.py <bucket (S3 bucket name)> -p <path (path in bucket in which to recursively search for Data Cube datasets to index)> --suffix=<string (The file suffix of dataset metadata documents)> | python3 Landsat/collection_2/index_scripts/ls8_l2_c2_public_bucket.py usgs-landsat -p collection02/level-2/standard/oli-tirs --suffix="MTL.xml" | [Landsat 7](datasets/Landsat/collection_1/indexing_scripts/ls8_public_bucket.py) |
+To add a product with a product definition at `<path>`, run `datacube product add <path>`.
+
+You also can limit the output of many commands, including this command, with a `-p` argument, specifying the products to show in a list (e.g. `-p "['ls8_usgs_sr_scene']"`).
+<br><br>
+
+>#### <a name="info_data"></a> Data Stores
+-----
+
+To view a table showing each datastore's path, description, compatible products, and the metadata file suffix, run this command from the starting directory: `python3 utils/show/show.py show-data-stores`.
+<br><br>
+
+>#### <a name="info_idx"></a> Indexing
+-----
+
+**To view a table showing the command calling format for each combination of product and compatible data store**, run this command from the starting directory: `python3 utils/show/show.py show-indexing`.
+
+If there is no indexing script for a given pairing of a product and a compatible data store (whether recorded in this repository or not), you should still be able to index that data store if it already has Datacube metadata YAML documents by using a command like `datacube dataset add <path-to-dataset-documents>`. For example, commonly you will have a directory containing directories of scenes - 1 directory per scene - with each containing a dataset document. If this dataset document is called `metadata.yaml`, then run this command to index the data: `datacube dataset add <data-store-root-path>/**/metadata.yaml` where `<data-store-root-path>` is the directory containing these scene directories.
+<br><br>
+
+>#### <a name="info_idx_scr"></a> Indexing Scripts
+-----
+
+To view a table showing the indexing scripts' paths, calling formats, compatible products, and supported datastore origin types, run this command from the starting directory: `python3 utils/show/show.py show-idx-scr`.

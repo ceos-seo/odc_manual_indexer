@@ -16,6 +16,7 @@ services:
         - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
       - ../../datasets:/Datacube/manual_indexer
+      - ../../utils:/Datacube/manual_indexer/utils
   odc:
     image: postgres:10-alpine
     environment:

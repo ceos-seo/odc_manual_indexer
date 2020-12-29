@@ -4,9 +4,6 @@ ENV CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
 
 WORKDIR /Datacube
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
-
 # Install CA certificates (partly for S3 access).
 RUN apt-get update && apt-get install ca-certificates -y && \
     rm -rf /var/lib/apt/lists/*
@@ -26,6 +23,9 @@ RUN rm -rf awscli-bundle.zip awscli-bundle awscli-bundle.zip
 
 COPY docker/entrypoint.sh ./entrypoint.sh
 RUN chmod 744 entrypoint.sh
+
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
 
 WORKDIR /Datacube/manual_indexer
 

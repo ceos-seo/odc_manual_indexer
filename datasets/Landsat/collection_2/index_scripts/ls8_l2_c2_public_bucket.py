@@ -431,7 +431,7 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
         'lineage': {'source_datasets': {}},
     }
     doc = absolutify_paths(doc, bucket_name, object_key)
-    print("doc:", doc)
+    # print("doc:", doc)
     return doc
 
 
