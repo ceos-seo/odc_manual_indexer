@@ -5,6 +5,9 @@ up:
 	docker-compose --project-directory docker/prod \
 	-f docker/prod/docker-compose.yml up -d --build
 
+build-tag: # -e TAG=<tag>
+	docker build -f docker/prod/Dockerfile . -t ${TAG}
+
 up-no-build:
 	docker-compose --project-directory docker/prod \
 	-f docker/prod/docker-compose.yml up -d
@@ -30,6 +33,9 @@ restart-no-build: down up-no-build
 dev-up:
 	docker-compose --project-directory docker/dev \
 	-f docker/dev/docker-compose.yml up -d --build
+
+dev-build-tag: # -e TAG=<tag>
+	docker build -f docker/dev/Dockerfile . -t ${TAG}
 
 dev-up-no-build:
 	docker-compose --project-directory docker/dev \
