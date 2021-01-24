@@ -1,29 +1,25 @@
 SHELL:=/bin/bash
 docker_compose_dev = docker-compose --project-directory docker/dev -f docker/dev/docker-compose.yml
+docker_compose_prod = docker-compose --project-directory docker/prod -f docker/prod/docker-compose.yml
 
 # Production #
 up:
-	docker-compose --project-directory docker/prod \
-	-f docker/prod/docker-compose.yml up -d --build
+	$(docker_compose_prod) up -d --build
 
 build-tag: # -e TAG=<tag>
 	docker build -f docker/prod/Dockerfile . -t ${TAG}
 
 up-no-build:
-	docker-compose --project-directory docker/prod \
-	-f docker/prod/docker-compose.yml up -d
+	$(docker_compose_prod) up -d
 
 down: 
-	docker-compose --project-directory docker/prod \
-	-f docker/prod/docker-compose.yml down
+	$(docker_compose_prod) down
 
 ssh:
-	docker-compose --project-directory docker/prod \
-	-f docker/prod/docker-compose.yml exec manual bash
+	$(docker_compose_prod) exec manual bash
 
 ps:
-	docker-compose --project-directory docker/prod \
-	-f docker/prod/docker-compose.yml ps
+	$(docker_compose_prod) ps
 
 restart: down up
 
@@ -32,27 +28,22 @@ restart-no-build: down up-no-build
 
 # Development #
 dev-up:
-	docker-compose --project-directory docker/dev \
-	-f docker/dev/docker-compose.yml up -d --build
+	$(docker_compose_dev) up -d --build
 
 dev-build-tag: # -e TAG=<tag>
 	docker build -f docker/dev/Dockerfile . -t ${TAG}
 
 dev-up-no-build:
-	docker-compose --project-directory docker/dev \
-	-f docker/dev/docker-compose.yml up -d
+	$(docker_compose_dev) up -d
 
 dev-down: 
-	docker-compose --project-directory docker/dev \
-	-f docker/dev/docker-compose.yml down
+	$(docker_compose_dev) down
 
 dev-ssh:
-	docker-compose --project-directory docker/dev \
-	-f docker/dev/docker-compose.yml exec manual bash
+	$(docker_compose_dev) exec manual bash
 
 dev-ps:
-	docker-compose --project-directory docker/dev \
-	-f docker/dev/docker-compose.yml ps
+	$(docker_compose_dev) ps
 
 dev-restart: dev-down dev-up
 

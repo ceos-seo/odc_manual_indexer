@@ -1,22 +1,20 @@
-FROM opendatacube/datacube-core:1.7
+FROM jcrattzama/datacube-base:odc1.8.3
+# jcrattzama/datacube-core:1.8.3_v2
 # jcrattzama/datacube-core:1.7
 
 ENV CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
 
-ARG WORKDIR=/manual_indexer
 WORKDIR /build
 
 # Install CA certificates (partly for S3 access).
-RUN apt-get update && apt-get install ca-certificates -y && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install ca-certificates -y
 RUN echo "\nexport CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> ~/.profile
 # Source the ~/.profile file.
 RUN . ~/.profile
 
 # Install some system utilities like wget and curl.
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install \
-        wget curl unzip -y < /dev/null && \
-    rm -rf /var/lib/apt/lists/*
+RUN DEBIAN_FRONTEND=noninteractive apt-get install \
+    wget curl unzip -y < /dev/null
 
 # Install the AWS CLI.
 RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
@@ -30,6 +28,19 @@ RUN chmod 744 ./docker/entrypoint.sh
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
+# Setup the Open Data Cube configuration.
+ARG ODC_DB_HOSTNAME="odc-db"
+ARG ODC_DB_DATABASE="datacube"
+ARG ODC_DB_USER="dc_user"
+ARG ODC_DB_PASSWORD="localuser1234"
+ARG ODC_DB_PORT="5432"
+ENV ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME} \
+    ODC_DB_DATABASE=${ODC_DB_DATABASE} \
+    ODC_DB_USER=${ODC_DB_USER} \
+    ODC_DB_PASSWORD=${ODC_DB_PASSWORD} \
+    ODC_DB_PORT=${ODC_DB_PORT}
+
+ARG WORKDIR=/manual_indexer
 WORKDIR $WORKDIR
 
 COPY datasets/ .

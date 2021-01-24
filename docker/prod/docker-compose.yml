@@ -1,9 +1,9 @@
 # Production
-version: '3.8'
+version: '3.7'
 services:
   manual:
     build:
-      context: ../../
+      context: ${DKR_CMP_CONTEXT}
       dockerfile: docker/prod/Dockerfile
     command: "tail -f /dev/null"
     environment:

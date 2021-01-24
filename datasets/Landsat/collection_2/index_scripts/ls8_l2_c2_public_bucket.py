@@ -339,7 +339,7 @@ def make_xml_doc(xmlstring, bucket_name, object_key):
 def make_metadata_doc(mtl_data, bucket_name, object_key):
     
     mtl_data = BeautifulSoup(mtl_data, "lxml")
-    print(f"mtl_data: {mtl_data}")
+    # print(f"mtl_data: {mtl_data}")
 
     # mtl_product_info = mtl_data['PRODUCT_METADATA']
     # mtl_metadata_info = mtl_data['METADATA_FILE_INFO']
@@ -382,18 +382,25 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
         {'pixel_qa': 'file_name_quality_l1_pixel',
          'tirs': 'file_name_band_st_b10'}
     for i, band in bands:
+        import copy
+        band_data_current = copy.deepcopy(band_data)
         try:
             int_i = int(i)
         except:
             int_i = None
         if int_i and int_i < 8:
-            band_data['path'] = getattr(mtl_data.product_contents, f"file_name_band_{int(i)}").text
+            # print('here1')
+            band_data_current['path'] = getattr(mtl_data.product_contents, f"file_name_band_{int(i)}").text
         # if band == 'pixel_qa': 
             # band_data['path'] = mtl_data.product_contents.file_name_quality_l1_pixel.text
         else:
-            band_data['path'] = getattr(mtl_data.product_contents, unique_band_filename_map[band]).text
-        doc_bands[band] = band_data
-    print("doc_bands:", doc_bands)
+            # print('here2')
+            # print(f'mtl_data.product_contents: {mtl_data.product_contents}')
+            # print(f'unique_band_filename_map[band]: {unique_band_filename_map[band]}')
+            band_data_current_path = getattr(mtl_data.product_contents, unique_band_filename_map[band])
+            band_data_current['path'] = band_data_current_path.text if band_data_current_path is not None else ""
+        doc_bands[band] = band_data_current
+    # print("doc_bands:", doc_bands)
     # TODO: Remove `region_code` as in L8 C1 indexing script?
     # TODO: Add `label` as in L8 C1 indexing script?
     doc = {
@@ -463,6 +470,8 @@ def add_dataset(doc, uri, index, sources_policy):
     # print("add_dataset index:", index, type(index))
     doc_id = doc['id']
     logging.info("Indexing dataset: {} with URI:  {}".format(doc_id, uri))
+    # print(f'type(doc_id): {type(doc_id)}')
+    # print(f'type(uri): {type(uri)}')
 
     resolver = Doc2Dataset(index)
     # print(f"resolver: {resolver}")

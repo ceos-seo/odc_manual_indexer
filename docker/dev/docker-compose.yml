@@ -1,26 +1,27 @@
 # Development
-version: '3.8'
+version: '3.7'
 services:
   manual:
     build:
-      context: ../../
+      context: ${DKR_CMP_CONTEXT}
       dockerfile: docker/dev/Dockerfile
+      args:
+        ODC_DB_HOSTNAME: odc
+        ODC_DB_DATABASE: ${ODC_DB_DATABASE}
+        ODC_DB_USER: ${ODC_DB_USER}
+        ODC_DB_PASSWORD: ${ODC_DB_PASSWORD}
+        ODC_DB_PORT: 5432
     command: "tail -f /dev/null"
     environment:
-        - DB_HOSTNAME=odc
-        - DB_DATABASE=${DB_DATABASE}
-        - DB_USER=${DB_USER}
-        - DB_PASSWORD=${DB_PASSWORD}
-        - DB_PORT=5432
-        - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-        - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
-      - ../../datasets:/manual_indexer
-      - ../../utils:/manual_indexer/utils
+      - ${DKR_CMP_CONTEXT}/datasets:/manual_indexer
+      - ${DKR_CMP_CONTEXT}/utils:/manual_indexer/utils
   odc:
     image: postgres:10-alpine
     environment:
-      - POSTGRES_DB=${DB_DATABASE}
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${ODC_DB_DATABASE}
+      - POSTGRES_USER=${ODC_DB_USER}
+      - POSTGRES_PASSWORD=${ODC_DB_PASSWORD}
       
