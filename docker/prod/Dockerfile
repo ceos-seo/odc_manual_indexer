@@ -1,16 +1,11 @@
 FROM jcrattzama/datacube-base:odc1.8.3
-# jcrattzama/datacube-core:1.8.3_v2
-# jcrattzama/datacube-core:1.7
-
-ENV CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
 
 WORKDIR /build
 
 # Install CA certificates (partly for S3 access).
+ENV CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
 RUN apt-get update && apt-get install ca-certificates -y
-RUN echo "\nexport CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> ~/.profile
-# Source the ~/.profile file.
-RUN . ~/.profile
+RUN echo "export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> ~/.bashrc
 
 # Install some system utilities like wget and curl.
 RUN DEBIAN_FRONTEND=noninteractive apt-get install \

@@ -5,15 +5,16 @@ services:
     build:
       context: ${DKR_CMP_CONTEXT}
       dockerfile: docker/prod/Dockerfile
+      args:
+        ODC_DB_HOSTNAME: ${ODC_DB_HOSTNAME}
+        ODC_DB_DATABASE: ${ODC_DB_DATABASE}
+        ODC_DB_USER: ${ODC_DB_USER}
+        ODC_DB_PASSWORD: ${ODC_DB_PASSWORD}
+        ODC_DB_PORT: ${ODC_DB_PORT}
     command: "tail -f /dev/null"
     environment:
-        - DB_HOSTNAME=${DB_HOSTNAME}
-        - DB_DATABASE=${DB_DATABASE}
-        - DB_USER=${DB_USER}
-        - DB_PASSWORD=${DB_PASSWORD}
-        - DB_PORT=${DB_PORT}
-        - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-        - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
       - /Datacube/data:/Datacube/data
     networks:

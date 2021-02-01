@@ -1,43 +1,15 @@
 FROM jcrattzama/datacube-base:odc1.8.3
-# jcrattzama/cube-in-a-box:odc1.8.3
-# jcrattzama/datacube-core:1.8.3_v2
-# jcrattzama/datacube-core:1.7
-
-# Build Tools #
-# RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-#         python3-setuptools && \
-#     rm -rf /var/lib/apt/lists/*
-# RUN pip3 install --upgrade Cython
-
-# End Build Tools #
-
-# Handle Rasterio Issues #
-
-# (Option 1) If using binary rasterio package, to support HTTPS, symlink SSL certs path.
-# Note that installing with `pip install --no-binary=rasterio rasterio`
-# may not require this, but this is still a good safeguard to use.
-# RUN mkdir -p /etc/pki/tls/certs && \
-    # ln -s /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt
-
-# (Option 2) Install rasterio from binary.
-# RUN pip3 install --no-binary=rasterio rasterio==1.1.8
-
-# End Handle Rasterio Issues #
-
-ENV CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
 
 WORKDIR /build
 
 # Install CA certificates (partly for S3 access).
+ENV CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
 RUN apt-get update && apt-get install ca-certificates -y
 RUN echo "export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> ~/.profile
-# Source the ~/.profile file.
-RUN . ~/.profile
 
 # Install some system utilities like wget and curl.
 RUN DEBIAN_FRONTEND=noninteractive apt-get install \
     wget curl unzip -y < /dev/null
-# python3-setuptools
 
 # Install the AWS CLI.
 RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
