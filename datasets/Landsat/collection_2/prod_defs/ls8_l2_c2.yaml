@@ -4,7 +4,7 @@ metadata_type: eo
 
 metadata:
     platform:
-        code: LANDSAT_8
+        code: LANDSAT_8_C2_L2
     instrument:
         name: OLI_TIRS
     product_type: LaSRCollection2

@@ -19,6 +19,7 @@ from datacube.index.hl import Doc2Dataset
 from datacube.utils import changes
 from ruamel.yaml import YAML
 import json
+from datetime import datetime
 
 from multiprocessing import Process, current_process, Queue, Manager, cpu_count
 from time import sleep, time
@@ -221,8 +222,6 @@ def make_xml_doc(xmlstring, bucket_name, object_key):
         band_file_map = band_file_map_l8
     else:
         band_file_map = band_file_map_l57
-    
-    logging.info("Working on data for satellite: {}".format(satellite_string))
 
     # cs_code = '5072'
     utm_zone = doc.find('.//projection_information/utm_proj_params/zone_code').text
@@ -339,8 +338,8 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
     product_type = 'L1TP'
     sensing_time = acquisition_date + ' ' + scene_center_time
     cs_code = 32600 + mtl_data['PROJECTION_PARAMETERS']['UTM_ZONE']
-    print(f'cs_code: {cs_code}')
-    logging.info(f'cs_code: {cs_code}')
+    # print(f'cs_code: {cs_code}')
+    # logging.info(f'cs_code: {cs_code}')
     label = mtl_metadata_info['LANDSAT_SCENE_ID']
     spatial_ref = osr.SpatialReference()
     spatial_ref.ImportFromEPSG(cs_code)
@@ -406,7 +405,7 @@ def archive_document(doc, uri, index, sources_policy):
 
 
 def add_dataset(doc, uri, index, sources_policy):
-    print("add_dataset doc:", doc)
+    # print("add_dataset doc:", doc)
     logging.info("Indexing dataset: {} with URI:  {}".format(doc['id'], uri))
 
     resolver = Doc2Dataset(index)
@@ -483,7 +482,7 @@ def worker(config, bucket_name, prefix, suffix, start_date, end_date, func, unsa
             queue.task_done()
 
 
-def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, func, unsafe, sources_policy):
+def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, lat1, lat2, lon1, lon2, func, unsafe, sources_policy):
     logging.info("Starting iterate datasets.")
     manager = Manager()
     queue = manager.Queue()
@@ -500,11 +499,27 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
         processess.append(proc)
         proc.start()
 
+    # Determine the path-rows to load data for.
+    import sys
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    from tile_shapefile_formatting import path_row_geojson_to_min_max_xy_fmt
+    path_row_data = path_row_geojson_to_min_max_xy_fmt()
+    path_rows_to_index = (lat1 < path_row_data.max_y) & (path_row_data.min_y < lat2) & \
+                         (lon1 < path_row_data.max_x) & (path_row_data.min_x < lon2)
+    path_rows_to_index = path_row_data.loc[path_rows_to_index, ['Path', 'Row']]
+
+    # Subset the years based on the requested time range (`start_date`, `end_date`).
+    years = list(range(datetime.strptime(start_date, "%Y-%m-%d").year, \
+                       datetime.strptime(end_date, "%Y-%m-%d").year+1))
+
     count = 0
-    for obj in bucket.objects.filter(Prefix = str(prefix)):
-        if (obj.key.endswith(suffix)):
-            count += 1
-            queue.put(obj.key)
+    for year in years:
+        for path, row in path_rows_to_index.values:
+            year_path_row_prefix = f"{prefix}/{path.zfill(3)}/{row}/{year}"
+            for obj in bucket.objects.filter(Prefix = year_path_row_prefix):
+                if (obj.key.endswith(suffix)):
+                    count += 1
+                    queue.put(obj.key)
     
     logging.info("Found {} items to investigate".format(count))
 
@@ -523,13 +538,24 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
 @click.option('--suffix', '-s', default=".yaml", help="Defines the suffix of the metadata_docs that will be used to load datasets. For AWS PDS bucket use MTL.txt")
 @click.option('--start_date', help="Pass the start acquisition date, in YYYY-MM-DD format")
 @click.option('--end_date', help="Pass the end acquisition date, in YYYY-MM-DD format")
+@click.option('--lat1', help="Pass the lower latitude")
+@click.option('--lat2', help="Pass the upper latitude")
+@click.option('--lon1', help="Pass the lower longitude")
+@click.option('--lon2', help="Pass the upper longitude")
 @click.option('--archive', is_flag=True, help="If true, datasets found in the specified bucket and prefix will be archived")
 @click.option('--unsafe', is_flag=True, help="If true, YAML will be parsed unsafely. Only use on trusted datasets. Only valid if suffix is yaml")
 @click.option('--sources_policy', default="verify", help="verify, ensure, skip")
-def main(bucket_name, config, prefix, suffix, start_date, end_date, archive, unsafe, sources_policy):
+def main(bucket_name, config, prefix, suffix, start_date, end_date, lat1, lat2, lon1, lon2, archive, unsafe, sources_policy):
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
+    start_date = "2013-02-11" if start_date is None else start_date
+    end_date = "2029-12-31" if end_date is None else end_date
+    lat1 = -90 if lat1 is None else float(lat1)
+    lat2 = 90 if lat2 is None else float(lat2)
+    lon1 = -180 if lon1 is None else float(lon1)
+    lon2 = 180 if lon2 is None else float(lon2)
+    logging.info(f"lat1, lat2, lon1, lon2: {lat1, lat2, lon1, lon2}")
     action = archive_document if archive else add_dataset
-    iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, action, unsafe, sources_policy)
+    iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, lat1, lat2, lon1, lon2, action, unsafe, sources_policy)
    
 if __name__ == "__main__":
     main()

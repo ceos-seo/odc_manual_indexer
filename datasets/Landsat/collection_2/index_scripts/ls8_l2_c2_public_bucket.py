@@ -147,10 +147,6 @@ def get_band_filenames(xmldoc):
 
 def get_geo_ref_points(info):
     return {
-        # 'ul': {'x': info['CORNER_UL_PROJECTION_X_PRODUCT'], 'y': info['CORNER_UL_PROJECTION_Y_PRODUCT']},
-        # 'ur': {'x': info['CORNER_UR_PROJECTION_X_PRODUCT'], 'y': info['CORNER_UR_PROJECTION_Y_PRODUCT']},
-        # 'll': {'x': info['CORNER_LL_PROJECTION_X_PRODUCT'], 'y': info['CORNER_LL_PROJECTION_Y_PRODUCT']},
-        # 'lr': {'x': info['CORNER_LR_PROJECTION_X_PRODUCT'], 'y': info['CORNER_LR_PROJECTION_Y_PRODUCT']},
         'ul': {'x': float(info.projection_attributes.corner_ul_lon_product.text), 
                'y': float(info.projection_attributes.corner_ul_lat_product.text)},
         'ur': {'x': float(info.projection_attributes.corner_ur_lon_product.text), 
@@ -177,7 +173,7 @@ def satellite_ref(sat):
     """
     To load the band_names for referencing either LANDSAT8 or LANDSAT7 bands
     """
-    if sat == 'LANDSAT_8':
+    if sat == 'LANDSAT_8_C2_L2':
         sat_img = bands_ls8_l2
     # elif sat in ('LANDSAT_7', 'LANDSAT_5'):
         # sat_img = bands_ls7
@@ -223,7 +219,6 @@ def make_xml_doc(xmlstring, bucket_name, object_key):
     start_time = center_dt
     end_time = center_dt
 
-    satellite_string = "{}/{}".format(data_provider, satellite)
     images = satellite_ref(satellite_string)
     if satellite_string == 'USGS/EROS/LANDSAT_8':
         band_file_map = band_file_map_l8
@@ -292,8 +287,6 @@ def make_xml_doc(xmlstring, bucket_name, object_key):
     try:
         docdict = {
             'id': str(uuid.uuid5(uuid.NAMESPACE_URL, get_s3_url(bucket_name, object_key))),
-            # 'cloud_cover': cloud_cover,
-            # 'fill': fill,
             'processing_level': str(level),
             # This is hardcoded now... needs to be not hardcoded!
             'product_type': 'LaSRCollection2',
@@ -318,7 +311,6 @@ def make_xml_doc(xmlstring, bucket_name, object_key):
                 'bands': {
                     image[1]: {
                         'path': band_dict[band_file_map[image[1]]],
-                        # 'layer': 1,
                     } for image in images
                 }
             },
@@ -344,7 +336,7 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
     # mtl_product_info = mtl_data['PRODUCT_METADATA']
     # mtl_metadata_info = mtl_data['METADATA_FILE_INFO']
     # satellite = mtl_product_info['SPACECRAFT_ID']
-    satellite = mtl_data.image_attributes.spacecraft_id.text
+    satellite = 'LANDSAT_8_C2_L2' #mtl_data.image_attributes.spacecraft_id.text
     # instrument = mtl_product_info['SENSOR_ID']
     instrument = mtl_data.image_attributes.sensor_id.text
     # acquisition_date = mtl_product_info['DATE_ACQUIRED']
@@ -560,6 +552,8 @@ def worker(config, bucket_name, prefix, suffix, start_date, end_date, func, unsa
             break
         except ValueError as e:
             logging.error("Found data for a satellite that we can't handle: {}".format(e))
+            import traceback
+            traceback.print_exc()
         finally:
             queue.task_done()
 
@@ -603,6 +597,7 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
     # Subset the years based on the requested time range (`start_date`, `end_date`).
     years = list(range(datetime.strptime(start_date, "%Y-%m-%d").year, \
                        datetime.strptime(end_date, "%Y-%m-%d").year+1))
+    
     count = 0
     # (Old code)
     for year in years:
