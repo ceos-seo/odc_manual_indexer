@@ -461,7 +461,7 @@ def add_dataset(doc, uri, index, sources_policy):
     # print("add_dataset doc:", doc)
     # print("add_dataset index:", index, type(index))
     doc_id = doc['id']
-    logging.info("Indexing dataset: {} with URI:  {}".format(doc_id, uri))
+    # logging.info("Indexing dataset: {} with URI:  {}".format(doc_id, uri))
     # print(f'type(doc_id): {type(doc_id)}')
     # print(f'type(uri): {type(uri)}')
 
