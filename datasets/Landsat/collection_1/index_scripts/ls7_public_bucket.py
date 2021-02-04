@@ -24,6 +24,10 @@ from multiprocessing import Process, current_process, Queue, Manager, cpu_count
 from time import sleep, time
 from queue import Empty
 
+import sys
+sys.path.append(os.environ.get('WORKDIR'))
+from utils.indexing_utils import get_coords, get_s3_url
+
 GUARDIAN = "GUARDIAN_QUEUE_EMPTY"
 AWS_PDS_TXT_SUFFIX = "MTL.txt"
 LANDSAT_XML_SUFFIX = 'T1.xml'
@@ -153,17 +157,6 @@ def get_geo_ref_points(info):
         'll': {'x': info['CORNER_LL_PROJECTION_X_PRODUCT'], 'y': info['CORNER_LL_PROJECTION_Y_PRODUCT']},
         'lr': {'x': info['CORNER_LR_PROJECTION_X_PRODUCT'], 'y': info['CORNER_LR_PROJECTION_Y_PRODUCT']},
     }
-
-
-def get_coords(geo_ref_points, spatial_ref):
-    t = osr.CoordinateTransformation(spatial_ref, spatial_ref.CloneGeogCS())
-
-    def transform(p):
-        lon, lat, z = t.TransformPoint(p['x'], p['y'])
-        return {'lon': lon, 'lat': lat}
-
-    return {key: transform(p) for key, p in geo_ref_points.items()}
-
 
 def satellite_ref(sat):
     """
@@ -384,11 +377,6 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
 def format_obj_key(obj_key):
     obj_key ='/'.join(obj_key.split("/")[:-1])
     return obj_key
-
-
-def get_s3_url(bucket_name, obj_key):
-    return 's3://{bucket_name}/{obj_key}'.format(
-        bucket_name=bucket_name, obj_key=obj_key)
 
 
 def archive_document(doc, uri, index, sources_policy):

@@ -3,6 +3,7 @@
 # coding: utf-8
 
 import os
+from osgeo import osr
 import uuid
 import logging
 import click
@@ -13,10 +14,15 @@ import rasterio
 import glob
 import xarray as xr
 import re
+import datetime
 
 from multiprocessing import Process, current_process, Queue, Manager, cpu_count
 from time import sleep, time
 from queue import Empty
+
+import sys
+sys.path.append(os.environ.get('WORKDIR'))
+from utils.indexing_utils import get_coords, get_s3_url
 
 GUARDIAN = "GUARDIAN_QUEUE_EMPTY"
 
@@ -42,7 +48,6 @@ def get_res(geo_ref_points, tif_path, src_crs):
     # Convert to EPSG:4326.
     (minx, maxx), (miny, maxy) = \
         rasterio.warp.transform(src_crs, 'EPSG:4326', [minx, maxx], [miny, maxy])
-    # print(f'(minx, maxx), (miny, maxy): {(minx, maxx), (miny, maxy)}')
 
     data_np_arr = rasterio.open(tif_path).read(1)
     x_res = (maxx - minx) / data_np_arr.shape[1]
@@ -55,70 +60,73 @@ def absolutify_paths(doc):
     return doc
 
 def make_metadata_doc(path, product_name):
-    sensing_time = '1970-01-01'
-    for DEM_tif_file_path in glob.glob(path + '/DEM-*.tif'):
-        geo_ref_points = get_geo_ref_points(DEM_tif_file_path)
-        src_crs = 'EPSG:' + str(rasterio.open(DEM_tif_file_path).crs.to_epsg())
-        DEM_x_res, DEM_y_res = get_res(geo_ref_points, DEM_tif_file_path, src_crs)
-    for ortho_tif_file_path in glob.glob(path + '/Ortho-*.tif'):
-        ortho_x_res, ortho_y_res = get_res(geo_ref_points, ortho_tif_file_path, src_crs)
-        # pass
-    x_res = min(DEM_x_res, ortho_x_res)
-    y_res = min(DEM_y_res, ortho_y_res)
-    print(f'x_res, y_res: {x_res, y_res}')
-    print(f'src_crs: {src_crs}')
-    
+    tif_paths = [os.path.join(path, file_path) for file_path in os.listdir(path) if file_path.endswith('.tif')]
+    data = xr.open_rasterio(tif_paths[0])
+
+    start_time_str = data.attrs['StartTime']
+    start_time = datetime.datetime.strptime(start_time_str, '%Y-%m-%d %H:%M:%S.%f')
+    end_time_str = data.attrs['EndTime']
+    end_time = datetime.datetime.strptime(end_time_str, '%Y-%m-%d %H:%M:%S.%f')
+    center_dt = start_time + ((end_time - start_time) / 2)
+    creation_dt_str = data.attrs['ProductionTime']
+    creation_dt = datetime.datetime.strptime(creation_dt_str, '%Y-%m-%d %H:%M:%S.%f')
+
+    spatial_ref = osr.SpatialReference()
+    spatial_ref.ImportFromEPSG(4326)
+    geo_ref_points = get_geo_ref_points(tif_paths[0])
+    crs = spatial_ref.GetAttrValue("AUTHORITY", 0) + ":" + spatial_ref.GetAttrValue("AUTHORITY", 1)
+    coordinates = get_coords(geo_ref_points, spatial_ref)
+
     doc_bands = {}
-    band_data = {'layer': 1}
-    # print(f'band_data: {band_data}')
+    data_var_file_str_map = \
+        {'DNB_BRDF_corrected_NTL': 'DNB_BRDF-Corrected_NTL', 
+        'DNB_Lunar_Irradiance': 'DNB_Lunar_Irradiance',
+        'gap_filled_DNB_BRDF_corrected_NTL': 'Gap_Filled_DNB_BRDF-Corrected_NTL', 
+        'latest_high_quality_retrieval': 'Latest_High_Quality_Retrieval',
+        'mandatory_quality_flag': 'Mandatory_Quality_Flag', 
+        'QF_cloud_mask': 'QF_Cloud_Mask', 
+        'snow_flag': 'Snow_Flag'}
+    for data_var, data_var_file_str in data_var_file_str_map.items():
+        for tif_path in tif_paths:
+            match = re.search(data_var_file_str, tif_path)
+            if match:
+                doc_bands[data_var] = {'path': tif_path}
+                break
+
     doc = {
         'id': str(uuid.uuid5(uuid.NAMESPACE_URL, path)),
         'product': {'name': product_name},
+        'instrument': {'name': 'VIIRS'},
         'product_type': 'SurfaceRadiance',
-        'creation_dt': '1970-01-01', # TODO: How to determine creation_dt from the TIFs?
+        'creation_dt': creation_dt,
         'platform': {'code': 'BlackMarble'},
         'extent': {
-            'from_dt': sensing_time,
-            'to_dt': sensing_time,
-            'center_dt': sensing_time,
-            'coord': geo_ref_points,
+            'from_dt': start_time,
+            'to_dt': end_time,
+            'center_dt': center_dt,
+            'coord': coordinates,
                   },
         'format': {'name': 'GeoTiff'},
         'grid_spatial': {
             'projection': {
                 'geo_ref_points': geo_ref_points,
-                'spatial_reference': src_crs, 
+                'spatial_reference': crs, 
                             }
                         },
         'image': {
-            'bands': {
-                'elevation': {'path': DEM_tif_file_path},
-                'red':       {'path': ortho_tif_file_path, 'layer': 1},
-                'green':     {'path': ortho_tif_file_path, 'layer': 2},
-                'blue':      {'path': ortho_tif_file_path, 'layer': 3},
-                'alpha':     {'path': ortho_tif_file_path, 'layer': 4},
-            } 
+            'bands': doc_bands
         },
         'lineage': {'source_datasets': {}},
     }
     doc = absolutify_paths(doc)
-    print(f'doc: {doc}')
     return doc
-
-def get_s3_url(bucket_name, obj_key):
-    return 's3://{bucket_name}/{obj_key}'.format(
-        bucket_name=bucket_name, obj_key=obj_key)
 
 def add_dataset(doc, product_name, uri, index):
     doc_id = doc['id']
     logging.info("Indexing dataset: {} with URI: {}".format(doc_id, uri))
-    print(f'type(doc_id): {type(doc_id)}')
-    print(f'type(uri): {type(uri)}')
 
     resolver = Doc2Dataset(index)
     dataset, err  = resolver(doc, uri)
-    print(f'dataset: {dataset}')
-    print(f'err: {err}')
     existing_dataset = index.datasets.get(doc_id)
 
     if not existing_dataset:
@@ -147,14 +155,13 @@ def worker(config, path, product_name, unsafe, queue):
     while True:
         try:
             path = queue.get(timeout=60)
-            # print(f'path in worker(): {path}')
             if path == GUARDIAN:
                 break
             logging.info("Processing %s %s", path, current_process())
 
             data = make_metadata_doc(path, product_name)
             if data:
-                uri = 'file:/' + data['image']['bands']['elevation']['path']
+                uri = 'file:/' + data['image']['bands']['DNB_BRDF_corrected_NTL']['path']
                 add_dataset(data, product_name, uri, index)
             else:
                 logging.error("Failed to get data returned... skipping file.")
@@ -185,23 +192,9 @@ def iterate_datasets(path, product_name, config, unsafe):
     # Search the leaf directories.
     count = 0
     for root,dirs,files in os.walk(path):
-        # print(f'path: {path}')
         if not dirs: # This is a leaf directory.
-            # DEM_match, Ortho_match = False, False
-            for file_str in files:
-                # print(f'file_str: {file_str}')
-                # Every .h5 file in a leaf directory 
-                # constitutes a scene.
-                if re.search('.*.h5$', file_str) is not None:
-                    count += 1
-                    queue.put(os.path.join(root, file_str))
-                # DEM_match = 'DEM-' in file_str if not DEM_match else True
-                # Ortho_match = 'Ortho-' in file_str if not Ortho_match else True
-                # if DEM_match and Ortho_match: 
-                    # break
-            # if DEM_match and Ortho_match:
-                # count += 1
-                # queue.put(root)
+            count += 1
+            queue.put(root)
     
     logging.info("Found {} items to investigate".format(count))
 

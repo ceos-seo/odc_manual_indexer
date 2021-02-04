@@ -36,6 +36,7 @@ ENV ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME} \
     ODC_DB_PORT=${ODC_DB_PORT}
 
 ARG WORKDIR=/manual_indexer
+ENV WORKDIR=${WORKDIR}
 WORKDIR $WORKDIR
 
 ENTRYPOINT ["/build/docker/entrypoint.sh"]

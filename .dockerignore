@@ -1,1 +1,4 @@
 **/*.tif
+**/*.h5
+**/*.h5:Zone.Identifier
+**/*.nc

@@ -6,6 +6,7 @@ services:
       context: ${DKR_CMP_CONTEXT}
       dockerfile: docker/dev/Dockerfile
       args:
+        WORKDIR: ${WORKDIR}
         ODC_DB_HOSTNAME: odc
         ODC_DB_DATABASE: ${ODC_DB_DATABASE}
         ODC_DB_USER: ${ODC_DB_USER}
@@ -16,6 +17,7 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
+      - /Datacube/data:/Datacube/data
       - ${DKR_CMP_CONTEXT}/datasets:/manual_indexer
       - ${DKR_CMP_CONTEXT}/utils:/manual_indexer/utils
   odc:

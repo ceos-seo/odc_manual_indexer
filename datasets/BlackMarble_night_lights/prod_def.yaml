@@ -1,5 +1,6 @@
 name: black_marble_night_lights
-description: Nighttime surface upward radiance (Watts·cm−2·sr−1) from the VIIRS DNB aboard Suomi-NPP satellite (Collection V001)
+description: Nighttime surface upward radiance (Watts·cm−2·sr−1) from the VIIRS DNB aboard Suomi-NPP satellite (Collection V001). \
+             This dataset is also called VNP46.
 metadata_type: eo
 
 metadata:
@@ -16,134 +17,100 @@ metadata:
 storage:
     crs: EPSG:4326
     resolution:
-        longitude: 0.000277777777780
-        latitude: -0.000277777777780
+        longitude: 0.004166666666666667
+        latitude: -0.004166666666666667
 
 measurements:
     - name: 'DNB_BRDF_corrected_NTL'
-      aliases: []
+      aliases: ['BRDF_cor_NTL']
       dtype: uint16
       nodata: 65535
       units: 'Watts*cm−2*sr−1'
     - name: 'DNB_Lunar_Irradiance'
-      aliases: []
+      aliases: ['lun_ir']
       dtype: uint16
       nodata: 65535
       units: 'Watts*cm−2*sr−1'
     - name: 'gap_filled_DNB_BRDF_corrected_NTL'
-      aliases: []
+      aliases: ['fill_BRDF_cor_NTL']
       dtype: uint16
       nodata: 65535
       units: 'Watts*cm−2*sr−1'
     - name: 'latest_high_quality_retrieval'
-      aliases: []
+      aliases: ['latest_hq_ret']
       dtype: uint8
       nodata: 255
       units: 'days'
     - name: 'mandatory_quality_flag'
-      aliases: []
+      aliases: ['qa']
       dtype: uint8
       nodata: 255
       units: '1'
       flags_definition:
         mandatory_quality_flag:
           bits: [0,1,2,3,4,5,6,7]
-          # description: Level 2 Pixel Quality Band
           values:
             0: high quality, main algorithm (persistent nighttime ligts)
             1: high quality, main algorithm (ephemeral nighttime lights)
             2: poor quality, main algorithm (outlier, potential cloud contamination or other issues)
-    # TODO: This should have a `flags_definition` field.
+            255: No retrieval, fill value
     - name: 'QF_cloud_mask'
-      aliases: []
+      aliases: ['qa_cloud']
       dtype: uint16
       nodata: 65535
       units: '1'
-    # TODO: This should have a `flags_definition` field.
+      flags_definition:
+        day_night:
+          bits: 0
+          values:
+            0: night
+            1: day
+        land_water_background:
+          bits: [1,2,3]
+          values:
+            000: land_and_desert
+            001: land_no_desert
+            010: inland_water
+            011: sea_water
+            101: coastal
+        cloud_mask_quality:
+          bits: [4,5]
+          values:
+            00: poor
+            01: low
+            10: medium
+            11: high
+        cloud_detection_results_and_confidence_indicator:
+          bits: [6,7]
+          values:
+            00: confident_clear
+            01: probably_clear
+            10: probably_cloudy
+            11: confident_cloudy
+        shadow_detected:
+          bits: 8
+          values:
+            0: false
+            1: true
+        cirrus_detected:
+          bits: 9
+          values:
+            0: false
+            1: true
+        snow_ice_surface:
+          bits: 10
+          values:
+            0: false
+            1: true
     - name: 'snow_flag'
-      aliases: []
-      dtype: uint16
+      aliases: ['snow']
+      dtype: uint8
       nodata: 65535
       units: '1'
-    
-    
-    # - name: 'tirs'
-    #   aliases: [band_10, sr_band10]
-    #   dtype: uint16
-    #   nodata: 0
-    #   units: '1' # scaled kelvin
-    # - name: 'pixel_qa'
-    #   aliases: [pixel_qa]
-    #   dtype: uint16
-    #   nodata: 1
-    #   units: '1'
-    #   flags_definition:
-    #     pixel_qa:
-    #       bits: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
-    #       description: Level 2 Pixel Quality Band
-    #       values:
-    #         1: Fill
-    #         2: Clear
-    #         4: Water
-    #         8: Cloud shadow
-    #         16: Snow
-    #         32: Cloud
-    #         64: Cloud Confidence Low Bit
-    #         128: Cloud Confidence High Bit
-    #         256: Cirrus Confidence Low Bit
-    #         512: Cirrus Confidence High Bit
-    #         1024: Unused
-    #         2048: Unused
-    #         4096: Unused
-    #         8192: Unused
-    #         16384: Unused
-    #         32786: Unused
-    #     nodata:
-    #       bits: 0
-    #       values:
-    #         0: false
-    #         1: true
-    #     clear:
-    #       bits: 1
-    #       values:
-    #         0: no_clear_land
-    #         1: clear_land
-    #     water:
-    #       bits: 2
-    #       values:
-    #         0: no_water
-    #         1: water
-    #     cloud_shadow:
-    #       bits: 3
-    #       values:
-    #         0: no_cloud_shadow
-    #         1: cloud_shadow
-    #     snow:
-    #       bits: 4
-    #       values:
-    #         0: no_snow
-    #         1: snow
-    #     cloud:
-    #       bits: 5
-    #       values:
-    #         0: no_cloud
-    #         1: cloud
-    #     cloud_confidence:
-    #       bits: [6, 7]
-    #       values:
-    #         0: none
-    #         1: low
-    #         2: medium
-    #         3: high
-    #     cirrus_confidence:
-    #       bits: [8, 9]
-    #       values:
-    #         0: none
-    #         1: low
-    #         2: medium
-    #         3: high
-    #     terrain_occlusion:
-    #       bits: 10
-    #       values:
-    #         0: no_occlusion
-    #         1: occlusion
+      flags_definition:
+        snow_ice_surface:
+          bits: [0, 1, 2, 3, 4, 5, 6, 7]
+          values:
+            0: false
+            1: true
+            255: fill

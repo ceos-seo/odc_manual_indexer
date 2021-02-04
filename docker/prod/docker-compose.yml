@@ -6,6 +6,7 @@ services:
       context: ${DKR_CMP_CONTEXT}
       dockerfile: docker/prod/Dockerfile
       args:
+        WORKDIR: ${WORKDIR}
         ODC_DB_HOSTNAME: ${ODC_DB_HOSTNAME}
         ODC_DB_DATABASE: ${ODC_DB_DATABASE}
         ODC_DB_USER: ${ODC_DB_USER}
