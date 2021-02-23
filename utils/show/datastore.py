@@ -24,13 +24,17 @@ odc_ds_df = pd.DataFrame(
  'Landsat 8 data for Africa (from GA - minimize queries)', 
  ['ls8_usgs_sr_scene'],
  '.xml'],
-['s3://usgs-landsat/collection02/level-2/standard/oli-tirs',
- 'USGS-hosted Landsat 8 C2 L2 Data (World)',
- ['ls8_l2_c2'],
+['s3://usgs-landsat/collection02/level-2/standard/tm',
+ 'USGS-hosted Landsat 5 C2 L2 Data (World)',
+ ['ls5_l2_c2'],
  'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
 ['s3://usgs-landsat/collection02/level-2/standard/etm',
  'USGS-hosted Landsat 7 C2 L2 Data (World)',
  ['ls7_l2_c2'],
+ 'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
+['s3://usgs-landsat/collection02/level-2/standard/oli-tirs',
+ 'USGS-hosted Landsat 8 C2 L2 Data (World)',
+ ['ls8_l2_c2'],
  'MTL.xml'] # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
  ])
 

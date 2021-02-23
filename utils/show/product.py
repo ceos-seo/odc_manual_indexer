@@ -27,9 +27,13 @@ prd_df = pd.DataFrame(
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml'],
 [sntnl2_l2a_product_type, 's2_ard_scene', 'from Copernicus Open Access Hub', '10-20m',
  'varies', 'Sentinel-2/L2A/prod_defs/s2_ard_scene_prod_def.yaml', 'N/A'],
-[ls8_c2_l2_product_type, 'ls8_l2_c2', 'N/A', '30m', 'EPSG:4326',
- 'Landsat/collection_2/prod_defs/ls8_l2_c2_public_bucket.yaml', \
+[ls5_c2_l2_product_type, 'ls5_l2_c2', 'N/A', '30m',
+ 'EPSG:4326', 'Landsat/collection_2/prod_defs/ls5_l2_c2.yaml', 
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml'],
 [ls7_c2_l2_product_type, 'ls7_l2_c2', 'N/A', '30m',
  'EPSG:4326', 'Landsat/collection_2/prod_defs/ls7_l2_c2.yaml', 
- 'https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml']])
+ 'https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml'],
+[ls8_c2_l2_product_type, 'ls8_l2_c2', 'N/A', '30m', 'EPSG:4326',
+ 'Landsat/collection_2/prod_defs/ls8_l2_c2_public_bucket.yaml', \
+ 'https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml']
+])

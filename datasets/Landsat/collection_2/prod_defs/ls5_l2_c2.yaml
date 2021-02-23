@@ -1,0 +1,258 @@
+name: ls5_l2_c2
+description: Landsat 5 Collection 2 Level2 Surface Reflectance LaSRC. 30m UTM based projection.
+metadata_type: eo
+
+metadata:
+    platform:
+        code: LANDSAT_5
+    instrument:
+        name: TM
+    product_type: LaSRCollection2
+    format:
+        name: GeoTiff
+
+storage:
+    crs: EPSG:4326
+    resolution:
+      longitude: 0.000277777777780
+      latitude: -0.000277777777780
+
+measurements:
+    - name: 'blue'
+      aliases: [band_1, sr_band1]
+      dtype: uint16
+      nodata: 0
+      units: '1'
+    - name: 'green'
+      aliases: [band_2, sr_band2]
+      dtype: uint16
+      nodata: 0
+      units: '1'
+    - name: 'red'
+      aliases: [band_3, sr_band3]
+      dtype: uint16
+      nodata: 0
+      units: '1'
+    - name: 'nir'
+      aliases: [band_4, sr_band4]
+      dtype: uint16
+      nodata: 0
+      units: '1'
+    - name: 'swir1'
+      aliases: [band_5, sr_band5]
+      dtype: uint16
+      nodata: 0
+      units: '1'
+    - name: 'swir2'
+      aliases: [band_7, sr_band7]
+      dtype: uint16
+      nodata: 0
+      units: '1'
+    - name: 'tirs'
+      aliases: [band_6, st_band6]
+      dtype: uint16
+      nodata: 0
+      units: '1' # scaled kelvin
+    # - name: 'atmosop' # Atmospheric opacity
+    #   aliases: [sr_atmosop]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    - name: 'cloud_qa'
+      aliases: [sr_cloud_qa, pixel_qa_l2]
+      dtype: uint8
+      nodata: -1
+      units: '1'
+      flags_definition:
+        dark_dense_vegetation: # DDV
+          bits: 0
+          values:
+            0: no DDV
+            1: DDV
+        cloud:
+          bits: 1
+          values:
+            0: no cloud
+            1: cloud
+        cloud_shadow:
+          bits: 2
+          values:
+            0: no cloud shadow
+            1: cloud shadow
+        cloud_adjacent:
+          bits: 3
+          values:
+            0: no cloud adjacency
+            1: cloud adjacency
+        snow:
+          bits: 4
+          values:
+            0: no snow
+            1: snow
+        water:
+          bits: 5
+          values:
+            0: no water
+            1: water
+    - name: 'pixel_qa'
+      aliases: [pixel_qa_l1]
+      dtype: uint16
+      nodata: 1
+      units: '1'
+      flags_definition:
+        nodata: # 'fill'
+          bits: 0
+          values:
+            0: false
+            1: true
+        dilated_cloud:
+          bits: 1
+          values:
+            0: cloud not dilated
+            1: cloud dilated
+        cloud:
+          bits: 3
+          values:
+            0: not high confidence
+            1: high confidence
+        cloud_shadow:
+          bits: 4
+          values:
+            0: no cloud shadow
+            1: cloud shadow
+        snow:
+          bits: 5
+          values:
+            0: no snow
+            1: snow
+        clear:
+          bits: 6
+          values:
+            0: not clear (if cloud or dilated cloud bits are set)
+            1: clear
+        water:
+          bits: 7
+          values:
+            0: no water
+            1: water
+        cloud_confidence:
+          bits: [8, 9]
+          values:
+            0: none
+            1: low
+            2: medium
+            3: high
+        cloud_shadow_confidence:
+          bits: [10, 11]
+          values:
+            0: none
+            1: low
+            2: reserved (do not use)
+            3: high
+        snow_ice_confidence:
+          bits: [12, 13]
+          values:
+            0: none
+            1: low
+            2: reserved (do not use)
+            3: high
+    - name: 'radsat_qa'
+      aliases: [sr_radsat_qa]
+      dtype: uint16
+      nodata: 0 # N/A
+      units: '1'
+      flags_definition:
+        band1_sat:
+          bits: 0
+          values:
+            0: not saturated
+            1: saturated
+        band2_sat:
+          bits: 1
+          values:
+            0: not saturated
+            1: saturated
+        band3_sat:
+          bits: 2
+          values:
+            0: not saturated
+            1: saturated
+        band4_sat:
+          bits: 3
+          values:
+            0: not saturated
+            1: saturated
+        band5_sat:
+          bits: 4
+          values:
+            0: not saturated
+            1: saturated
+        band6L_sat:
+          bits: 5
+          values:
+            0: not saturated
+            1: saturated
+        band7_sat:
+          bits: 6
+          values:
+            0: not saturated
+            1: saturated
+        band6H_sat:
+          bits: 8
+          values:
+            0: not saturated
+            1: saturated
+        drop_px: # Dropped pixel
+          bits: 9
+          values:
+            0: pixel present
+            1: dropped pixel (no value from detector)
+    # Surface Temperature Measurements #
+    # - name: 'surface_temp'
+    #   aliases: [st_band6]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'atran' # Atmospheric transmittance
+    #   aliases: [st_atran]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'cdist' # Cloud distance
+    #   aliases: [st_cdist]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'drad' # Downwelled radiance
+    #   aliases: [st_drad]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'urad' # Upwelled radiance
+    #   aliases: [st_urad]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'trad' # Thermal radiance
+    #   aliases: [st_trad]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'emis' # Emissivity (estimated from ASTER GED)
+    #   aliases: [st_emis]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: 'emissivity coefficient'
+    # - name: 'emisd' # Emissivity standard deviation
+    #   aliases: [st_emisd]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: 'emissivity coefficient'
+    # # Indicates uncertainty about the temperature values.
+    # # Higher numbers indicate greater uncertainty.
+    # - name: 'st_pixel_qa' 
+    #   aliases: [st_qa]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: 'kelvin'
+    
