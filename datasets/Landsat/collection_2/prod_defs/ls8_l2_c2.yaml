@@ -1,10 +1,10 @@
 name: ls8_l2_c2
-description: Landsat 8 Collection 1 Level2 Surface Reflectance LaSRC. 30m UTM based projection.
+description: Landsat 8 Collection 2 Level2 Surface Reflectance LaSRC. 30m UTM based projection.
 metadata_type: eo
 
 metadata:
     platform:
-        code: LANDSAT_8_C2_L2
+        code: LANDSAT_8
     instrument:
         name: OLI_TIRS
     product_type: LaSRCollection2

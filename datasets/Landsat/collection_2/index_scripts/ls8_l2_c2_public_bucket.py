@@ -165,7 +165,7 @@ def satellite_ref(sat):
     """
     To load the band_names for referencing either LANDSAT8 or LANDSAT7 bands
     """
-    if sat == 'LANDSAT_8_C2_L2':
+    if sat == 'LANDSAT_8':
         sat_img = bands_ls8_l2
     # elif sat in ('LANDSAT_7', 'LANDSAT_5'):
         # sat_img = bands_ls7
@@ -328,7 +328,7 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
     # mtl_product_info = mtl_data['PRODUCT_METADATA']
     # mtl_metadata_info = mtl_data['METADATA_FILE_INFO']
     # satellite = mtl_product_info['SPACECRAFT_ID']
-    satellite = 'LANDSAT_8_C2_L2' #mtl_data.image_attributes.spacecraft_id.text
+    satellite = 'LANDSAT_8' #mtl_data.image_attributes.spacecraft_id.text
     # instrument = mtl_product_info['SENSOR_ID']
     instrument = mtl_data.image_attributes.sensor_id.text
     # acquisition_date = mtl_product_info['DATE_ACQUIRED']
@@ -341,6 +341,7 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
     # cs_code = 32600 + mtl_data['PROJECTION_PARAMETERS']['UTM_ZONE']
     # cs_code = 32600 + mtl_data.projection_attributes.utm_zone.text
     # label = mtl_metadata_info['LANDSAT_SCENE_ID']
+    # TODO: Ensure `label` is correct as in L8 C1 indexing script?
     label = mtl_data.level1_processing_record.landsat_scene_id.text
     # print(f"satellite, instrument: {satellite}, {instrument}")
     # print(f"acquisition_date, scene_center_time: {acquisition_date}, {scene_center_time}")
@@ -386,7 +387,6 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
         doc_bands[band] = band_data_current
     # print("doc_bands:", doc_bands)
     # TODO: Remove `region_code` as in L8 C1 indexing script?
-    # TODO: Add `label` as in L8 C1 indexing script?
     doc = {
         'id': str(uuid.uuid5(uuid.NAMESPACE_URL, get_s3_url(bucket_name, object_key))),
         'processing_level': processing_level,
@@ -566,20 +566,11 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
     # Determine the path-rows to load data for.
     import sys
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    # print(sys.path)
-    # sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    # print(sys.path)
     from tile_shapefile_formatting import path_row_geojson_to_min_max_xy_fmt
     path_row_data = path_row_geojson_to_min_max_xy_fmt()
-    # logging.info(f"path_row_data: {path_row_data}")
-    # logging.info(f"lat1: {lat1}")
-    # cond = lat1 < path_row_data.min_y
-    # logging.info(f"cond: {cond}")
     path_rows_to_index = (lat1 < path_row_data.max_y) & (path_row_data.min_y < lat2) & \
                          (lon1 < path_row_data.max_x) & (path_row_data.min_x < lon2)
-    # logging.info(f"path_rows_to_index: {path_rows_to_index}")
     path_rows_to_index = path_row_data.loc[path_rows_to_index, ['Path', 'Row']]
-    # logging.info(f"path_rows_to_index: {path_rows_to_index}")
 
     # Subset the years based on the requested time range (`start_date`, `end_date`).
     years = list(range(datetime.strptime(start_date, "%Y-%m-%d").year, \
@@ -589,12 +580,9 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
     # (Old code)
     for year in years:
         for path, row in path_rows_to_index.values:
-            # print(f"year, path, row: {year, path, row}")
             year_path_row_prefix = f"{prefix}/{year}/{path.zfill(3)}/{row.zfill(3)}"
-            # logging.info(f"year_path_row_prefix: {year_path_row_prefix}")
             for obj in bucket.objects.filter(Prefix = year_path_row_prefix, 
                                              RequestPayer='requester'):
-                # print(f"obj: {obj}")
                 if (obj.key.endswith(suffix)):
                     count += 1
                     queue.put(obj.key)
