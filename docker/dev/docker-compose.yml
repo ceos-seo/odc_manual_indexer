@@ -2,6 +2,7 @@
 version: '3.7'
 services:
   manual:
+    image: ${OUT_IMG}
     build:
       context: ${DKR_CMP_CONTEXT}
       dockerfile: docker/dev/Dockerfile

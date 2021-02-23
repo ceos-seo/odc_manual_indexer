@@ -6,31 +6,39 @@ IMG_REPO?=jcrattzama/odc_manual_indexer
 IMG_VER?=
 ODC_VER?=1.8.3
 
+BASE_IMG=jcrattzama/datacube-base:odc1.8.3
+
 PROD_OUT_IMG?="${IMG_REPO}:odc${ODC_VER}${IMG_VER}"
 DEV_OUT_IMG?="${IMG_REPO}:odc${ODC_VER}${IMG_VER}_dev"
 
+# Common exports used in subshells in the targets below.
+COMMON_EXPRTS=export ODC_VER=${ODC_VER}; \
+export BASE_IMG=${BASE_IMG}; export REQS_PATH=${REQS_PATH}
+PROD_COMMON_EXPRTS=export OUT_IMG=${PROD_OUT_IMG}; ${COMMON_EXPRTS}
+DEV_COMMON_EXPRTS=export OUT_IMG=${DEV_OUT_IMG}; ${COMMON_EXPRTS}
+
 # Production #
 up:
-	$(docker_compose_prod) up -d --build
+	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) up -d --build)
 
 up-no-build:
-	$(docker_compose_prod) up -d
+	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) up -d)
+
+build-tag: # -e TAG=<tag> OR -e IMG_VER=<version>
+	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) build)
 
 down: 
-	$(docker_compose_prod) down
+	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) down)
 
 ssh:
-	$(docker_compose_prod) exec manual bash
+	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) exec manual bash)
 
 ps:
-	$(docker_compose_prod) ps
+	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) ps)
 
 restart: down up
 
 restart-no-build: down up-no-build
-
-build-tag: # -e TAG=<tag>
-	docker build -f docker/prod/Dockerfile . -t ${PROD_OUT_IMG}
 
 push:
 	docker push ${PROD_OUT_IMG}
@@ -40,26 +48,26 @@ build-and-push: build-tag push
 
 # Development #
 dev-up:
-	$(docker_compose_dev) up -d --build
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) up -d --build)
 
 dev-up-no-build:
-	$(docker_compose_dev) up -d
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) up -d)
 
 dev-down: 
-	$(docker_compose_dev) down
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) down)
 
 dev-ssh:
-	$(docker_compose_dev) exec manual bash
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) exec manual bash)
 
 dev-ps:
-	$(docker_compose_dev) ps
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) ps)
 
 dev-restart: dev-down dev-up
 
 dev-restart-no-build: dev-down dev-up-no-build
 
-dev-build-tag: # -e TAG=<tag>
-	docker build -f docker/dev/Dockerfile . -t ${DEV_OUT_IMG}
+dev-build-tag: # -e TAG=<tag> OR -e IMG_VER=<version>
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) build)
 
 dev-push:
 	docker push ${DEV_OUT_IMG}
@@ -67,7 +75,7 @@ dev-push:
 build-and-push: build-tag push
 # End Development #
 
-## ODC DB ##
+# ODC DB #
 
 # Create the persistent volume for the ODC database.
 create-odc-db-volume:
@@ -102,7 +110,10 @@ odc-db-ssh:
 	docker exec -it odc-db bash
 
 dev-odc-db-init:
-	$(docker_compose_dev) exec manual datacube system init
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) exec manual datacube system init)
+
+odc-db-init:
+	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) exec manual datacube system init)
 
 delete-odc-db:
 	docker rm odc-db
@@ -110,4 +121,4 @@ delete-odc-db:
 recreate-odc-db: stop-odc-db delete-odc-db create-odc-db
 
 recreate-odc-db-and-vol: stop-odc-db delete-odc-db recreate-odc-db-volume create-odc-db dev-odc-db-init
-## End ODC DB ##
+# End ODC DB #
