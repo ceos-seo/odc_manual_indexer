@@ -27,6 +27,10 @@ odc_ds_df = pd.DataFrame(
 ['s3://usgs-landsat/collection02/level-2/standard/oli-tirs',
  'USGS-hosted Landsat 8 C2 L2 Data (World)',
  ['ls8_l2_c2'],
+ 'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
+['s3://usgs-landsat/collection02/level-2/standard/etm',
+ 'USGS-hosted Landsat 7 C2 L2 Data (World)',
+ ['ls7_l2_c2'],
  'MTL.xml'] # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
  ])
 
