@@ -165,15 +165,16 @@ def worker(config, path, product_name, unsafe, queue):
                 add_dataset(data, product_name, uri, index)
             else:
                 logging.error("Failed to get data returned... skipping file.")
+            queue.task_done()
         except Empty:
-            logging.error("Empty exception hit.")
-            break
+            sleep(1) # Queue is empty:
         except EOFError:
             logging.error("EOF Error hit.")
-            break
+            queue.task_done()
         except ValueError as e:
             logging.error("Found data for a satellite that we can't handle: {}".format(e))
-        finally:
+            import traceback
+            traceback.print_exc()
             queue.task_done()
 
 def iterate_datasets(path, product_name, config, unsafe):
@@ -193,6 +194,8 @@ def iterate_datasets(path, product_name, config, unsafe):
     count = 0
     for root,dirs,files in os.walk(path):
         if not dirs: # This is a leaf directory.
+            while queue.qsize() > 100:
+                sleep(1)
             count += 1
             queue.put(root)
     

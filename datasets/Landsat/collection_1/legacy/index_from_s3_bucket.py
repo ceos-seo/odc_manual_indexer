@@ -4,6 +4,7 @@ import logging
 import re
 import uuid
 from multiprocessing import Process, current_process, Manager, cpu_count
+from time import sleep, time
 from queue import Empty
 
 import boto3
@@ -163,11 +164,6 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
     return doc
 
 
-def format_obj_key(obj_key):
-    obj_key = '/'.join(obj_key.split("/")[:-1])
-    return obj_key
-
-
 def archive_document(doc, uri, index, sources_policy):
     def get_ids(dataset):
         ds = index.datasets.get(dataset.id, include_sources=True)
@@ -227,9 +223,15 @@ def worker(config, bucket_name, prefix, suffix, func, unsafe, sources_policy, qu
             func(data, uri, index, sources_policy)
             queue.task_done()
         except Empty:
-            break
+            sleep(1) # Queue is empty
         except EOFError:
-            break
+            logging.error("EOF Error hit.")
+            queue.task_done()
+        except ValueError as e:
+            logging.error("Found data for a satellite that we can't handle: {}".format(e))
+            import traceback
+            traceback.print_exc()
+            queue.task_done()
 
 
 def iterate_datasets(bucket_name, config, prefix, suffix, func, unsafe, sources_policy):
