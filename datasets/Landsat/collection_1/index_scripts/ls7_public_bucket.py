@@ -168,10 +168,8 @@ def satellite_ref(sat):
     elif sat in ('LANDSAT_7', 'LANDSAT_5'):
         sat_img = bands_ls7
     elif sat in ('USGS/EROS/LANDSAT_7', 'USGS/EROS/LANDSAT_5'):
-        # logging.info("We're working with the USGS supplied landsat 5 or 7.")
         sat_img = bands_ls57_usard
     elif sat == 'USGS/EROS/LANDSAT_8':
-        # logging.info("We're working with the USGS supplied landsat 8.")
         sat_img = bands_ls8_usard
     else:
         raise ValueError('Satellite data Not Supported')
@@ -317,7 +315,6 @@ def make_xml_doc(xmlstring, bucket_name, object_key):
     docdict = absolutify_paths(docdict, bucket_name, object_key)
 
     logging.info("Prepared docdict for metadata file: {}".format(object_key))
-    # print(json.dumps(docdict, indent=2))
 
     return docdict
 
@@ -452,21 +449,21 @@ def worker(config, bucket_name, prefix, suffix, start_date, end_date, func, unsa
                 if cdt and start_date and cdt:
                     # Use the fact lexicographical ordering matches the chronological ordering
                     if cdt >= start_date and cdt < end_date:
-                        # logging.info("calling %s", func)
                         func(data, uri, index, sources_policy)
                 else:
                     func(data, uri, index, sources_policy)
             else:
                 logging.error("Failed to get data returned... skipping file.")
+            queue.task_done()
         except Empty:
-            logging.error("Empty exception hit.")
-            break
+            sleep(1) # Queue is empty
         except EOFError:
             logging.error("EOF Error hit.")
-            break
+            queue.task_done()
         except ValueError as e:
             logging.error("Found data for a satellite that we can't handle: {}".format(e))
-        finally:
+            import traceback
+            traceback.print_exc()
             queue.task_done()
 
 

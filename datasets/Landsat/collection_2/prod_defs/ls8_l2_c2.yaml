@@ -133,10 +133,61 @@ measurements:
           values:
             0: no_occlusion
             1: occlusion
-    # - name: 'sr_aerosol'
-    #   aliases: [sr_aerosol_qa, aerosol_qa, aerosol]
+    - name: 'radsat_qa'
+      aliases: [sr_radsat_qa]
+      dtype: uint16
+      nodata: -1 # N/A
+      units: '1'
+      flags_definition:
+        band1_sat:
+          bits: 0
+          values:
+            0: not saturated
+            1: saturated
+        band2_sat:
+          bits: 1
+          values:
+            0: not saturated
+            1: saturated
+        band3_sat:
+          bits: 2
+          values:
+            0: not saturated
+            1: saturated
+        band4_sat:
+          bits: 3
+          values:
+            0: not saturated
+            1: saturated
+        band5_sat:
+          bits: 4
+          values:
+            0: not saturated
+            1: saturated
+        band6_sat:
+          bits: 5
+          values:
+            0: not saturated
+            1: saturated
+        band7_sat:
+          bits: 6
+          values:
+            0: not saturated
+            1: saturated
+        band9_sat:
+          bits: 8
+          values:
+            0: not saturated
+            1: saturated
+        terrain_occ: # terrain occlusion
+          bits: 11
+          values:
+            0: no terrain occlusion
+            1: terrain occlusion
+    # - name: 'aerosol_qa'
+    #   aliases: [sr_aerosol_qa, aerosol_qa]
     #   dtype: uint8
-    #   nodata: 0
+    #   nodata: 1
     #   units: '1'
     #   flags_definition:
     #     aerosol_qa:
@@ -151,25 +202,51 @@ measurements:
     #         32: Neighbor of Failed Aerosol Retrieval
     #         64: Aerosol Content Content Low Bit
     #         128: Aerosol Content Content High Bit
-    # - name: 'radsat_qa'
-    #   aliases: [radsat_qa]
-    #   dtype: uint16
-    #   nodata: 1
+    # Surface Temperature Measurements #
+    # - name: 'surface_temp'
+    #   aliases: [st_band10]
+    #   dtype: int16
+    #   nodata: 0
     #   units: '1'
-    #   flags_definition:
-    #     radsat_qa:
-    #       bits: [0,1,2,3,4,5,6,7]
-    #       description: Radiometric Saturation QA
-    #       values:
-    #         1: Data Fill Flag
-    #         2: Band 1 Data Saturation Flag
-    #         4: Band 2 Data Saturation Flag
-    #         8: Band 3 Data Saturation Flag
-    #         16: Band 4 Data Saturation Flag
-    #         32: Band 5 Data Saturation Flag
-    #         64: Band 6 Data Saturation Flag
-    #         128: Band 7 Data Saturation Flag
-    #         256: Unused
-    #         512: Band 9 Data Saturation Flag
-    #         1024: Band 10 Data Saturation Flag
-    #         2048: Band 11 Data Saturation Flag
+    # - name: 'atran' # Atmospheric transmittance
+    #   aliases: [st_atran]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'cdist' # Cloud distance
+    #   aliases: [st_cdist]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'drad' # Downwelled radiance
+    #   aliases: [st_drad]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'urad' # Upwelled radiance
+    #   aliases: [st_urad]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'trad' # Thermal radiance
+    #   aliases: [st_trad]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
+    # - name: 'emis' # Emissivity (estimated from ASTER GED)
+    #   aliases: [st_emis]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: 'emissivity coefficient'
+    # - name: 'emisd' # Emissivity standard deviation
+    #   aliases: [st_emisd]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: 'emissivity coefficient'
+    # # Indicates uncertainty about the temperature values.
+    # # Higher numbers indicate greater uncertainty.
+    # - name: 'st_pixel_qa' 
+    #   aliases: [st_qa]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: 'kelvin'

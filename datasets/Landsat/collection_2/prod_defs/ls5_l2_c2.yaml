@@ -53,15 +53,10 @@ measurements:
       dtype: uint16
       nodata: 0
       units: '1' # scaled kelvin
-    # - name: 'atmosop' # Atmospheric opacity
-    #   aliases: [sr_atmosop]
-    #   dtype: int16
-    #   nodata: -9999
-    #   units: '1'
     - name: 'cloud_qa'
       aliases: [sr_cloud_qa, pixel_qa_l2]
       dtype: uint8
-      nodata: -1
+      nodata: -1 # N/A
       units: '1'
       flags_definition:
         dark_dense_vegetation: # DDV
@@ -159,7 +154,7 @@ measurements:
     - name: 'radsat_qa'
       aliases: [sr_radsat_qa]
       dtype: uint16
-      nodata: 0 # N/A
+      nodata: -1 # N/A
       units: '1'
       flags_definition:
         band1_sat:
@@ -187,7 +182,7 @@ measurements:
           values:
             0: not saturated
             1: saturated
-        band6L_sat:
+        band6_sat:
           bits: 5
           values:
             0: not saturated
@@ -197,16 +192,16 @@ measurements:
           values:
             0: not saturated
             1: saturated
-        band6H_sat:
-          bits: 8
-          values:
-            0: not saturated
-            1: saturated
         drop_px: # Dropped pixel
           bits: 9
           values:
             0: pixel present
             1: dropped pixel (no value from detector)
+    # - name: 'atmosop' # Atmospheric opacity
+    #   aliases: [sr_atmosop]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
     # Surface Temperature Measurements #
     # - name: 'surface_temp'
     #   aliases: [st_band6]

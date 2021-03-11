@@ -14,6 +14,7 @@ import logging
 import click
 import re
 import boto3
+import urllib3
 import datacube
 from datacube.index.hl import Doc2Dataset
 from datacube.utils import changes
@@ -49,6 +50,7 @@ bands_ls7_l2_c2 = [
     ('QUALITY', 'pixel_qa'),
     ('RADSATQA', 'radsat_qa'),
     ('CLD_QUALITY', 'cloud_qa'),
+    # ('ATMOSOP', 'atmosop'),
     # Surface Temperature Measurements #
     # ('TEMP', 'surface_temp'),
     # ('ATRAN', 'atran'),
@@ -124,31 +126,6 @@ bands_ls7_l2_c2 = [
 # }
 
 
-def _parse_value(s):
-    s = s.strip('"')
-    for parser in [int, float]:
-        try:
-            return parser(s)
-        except ValueError:
-            pass
-    return s
-
-
-def _parse_group(lines):
-    tree = {}
-    for line in lines:
-        match = MTL_PAIRS_RE.findall(line)
-        if match:
-            key, value = match[0]
-            if key == 'GROUP':
-                tree[value] = _parse_group(lines)
-            elif key == 'END_GROUP':
-                break
-            else:
-                tree[key] = _parse_value(value)
-    return tree
-
-
 def get_band_filenames(xmldoc):
     """ parse the xml metadata and return the band names in a dict """
     band_dict = {}
@@ -161,17 +138,29 @@ def get_band_filenames(xmldoc):
     return (band_dict)
 
 
-def get_geo_ref_points(info):
-    return {
+def get_geo_ref_points(info, input_type):
+    if input_type == 'xml':
+        return {
         'ul': {'x': float(info.projection_attributes.corner_ul_lon_product.text), 
-               'y': float(info.projection_attributes.corner_ul_lat_product.text)},
+            'y': float(info.projection_attributes.corner_ul_lat_product.text)},
         'ur': {'x': float(info.projection_attributes.corner_ur_lon_product.text), 
-               'y': float(info.projection_attributes.corner_ur_lat_product.text)},
+            'y': float(info.projection_attributes.corner_ur_lat_product.text)},
         'll': {'x': float(info.projection_attributes.corner_ll_lon_product.text), 
-               'y': float(info.projection_attributes.corner_ll_lat_product.text)},
+            'y': float(info.projection_attributes.corner_ll_lat_product.text)},
         'lr': {'x': float(info.projection_attributes.corner_lr_lon_product.text), 
-               'y': float(info.projection_attributes.corner_lr_lat_product.text)},
-    }
+            'y': float(info.projection_attributes.corner_lr_lat_product.text)},
+        }
+    else: # 'json'
+        return {
+        'ul': {'x': float(info['LANDSAT_METADATA_FILE']['PROJECTION_ATTRIBUTES']['CORNER_UL_LON_PRODUCT']), 
+            'y': float(info['LANDSAT_METADATA_FILE']['PROJECTION_ATTRIBUTES']['CORNER_UL_LAT_PRODUCT'])},
+        'ur': {'x': float(info['LANDSAT_METADATA_FILE']['PROJECTION_ATTRIBUTES']['CORNER_UR_LON_PRODUCT']), 
+            'y': float(info['LANDSAT_METADATA_FILE']['PROJECTION_ATTRIBUTES']['CORNER_UR_LAT_PRODUCT'])},
+        'll': {'x': float(info['LANDSAT_METADATA_FILE']['PROJECTION_ATTRIBUTES']['CORNER_LL_LON_PRODUCT']), 
+            'y': float(info['LANDSAT_METADATA_FILE']['PROJECTION_ATTRIBUTES']['CORNER_LL_LAT_PRODUCT'])},
+        'lr': {'x': float(info['LANDSAT_METADATA_FILE']['PROJECTION_ATTRIBUTES']['CORNER_LR_LON_PRODUCT']), 
+            'y': float(info['LANDSAT_METADATA_FILE']['PROJECTION_ATTRIBUTES']['CORNER_LR_LAT_PRODUCT'])},
+        }
 
 def satellite_ref(sat):
     """
@@ -200,53 +189,42 @@ def absolutify_paths(doc, bucket_name, obj_key):
 
 
 def make_metadata_doc(mtl_data, bucket_name, object_key):
-    
-    mtl_data = BeautifulSoup(mtl_data, "lxml")
-    # print(f"mtl_data: {mtl_data}")
+    if object_key.endswith('.xml'):
+        input_type = 'xml'
+        mtl_data = BeautifulSoup(mtl_data, "lxml")
+        instrument = mtl_data.image_attributes.sensor_id.text
+        acquisition_date = mtl_data.image_attributes.date_acquired.text
+        scene_center_time = mtl_data.image_attributes.scene_center_time.text
+        processing_level = mtl_data.product_contents.processing_level.text
+        sensing_time = acquisition_date + ' ' + scene_center_time
+        label = mtl_data.level1_processing_record.landsat_scene_id.text
+    elif object_key.endswith('.json'):
+        input_type = 'json'
+        mtl_data = json.loads(mtl_data)
+        instrument = mtl_data['LANDSAT_METADATA_FILE']['IMAGE_ATTRIBUTES']['SENSOR_ID']
+        acquisition_date = mtl_data['LANDSAT_METADATA_FILE']['IMAGE_ATTRIBUTES']['DATE_ACQUIRED']
+        scene_center_time = mtl_data['LANDSAT_METADATA_FILE']['IMAGE_ATTRIBUTES']['SCENE_CENTER_TIME']
+        processing_level = mtl_data['LANDSAT_METADATA_FILE']['PRODUCT_CONTENTS']['PROCESSING_LEVEL']
+        sensing_time = acquisition_date + ' ' + scene_center_time
+        label = mtl_data['LANDSAT_METADATA_FILE']['LEVEL1_PROCESSING_RECORD']['LANDSAT_SCENE_ID']
 
-    # mtl_product_info = mtl_data['PRODUCT_METADATA']
-    # mtl_metadata_info = mtl_data['METADATA_FILE_INFO']
-    # satellite = mtl_product_info['SPACECRAFT_ID']
-    satellite = 'LANDSAT_7' #mtl_data.image_attributes.spacecraft_id.text
-    # instrument = mtl_product_info['SENSOR_ID']
-    instrument = mtl_data.image_attributes.sensor_id.text
-    # acquisition_date = mtl_product_info['DATE_ACQUIRED']
-    acquisition_date = mtl_data.image_attributes.date_acquired.text
-    # scene_center_time = mtl_product_info['SCENE_CENTER_TIME']
-    scene_center_time = mtl_data.image_attributes.scene_center_time.text
-    # level = mtl_product_info['DATA_TYPE']
-    processing_level = mtl_data.product_contents.processing_level.text
-    if processing_level != 'L2SR':
+    if processing_level not in ['L2SP', 'L2SR']: # L2 science product is SR + more
+        print(f'processing_level not supported: {processing_level}')
         return None # The data must be level 2 (surface reflectance).
-    sensing_time = acquisition_date + ' ' + scene_center_time
-    # cs_code = 32600 + mtl_data['PROJECTION_PARAMETERS']['UTM_ZONE']
-    # cs_code = 32600 + mtl_data.projection_attributes.utm_zone.text
-    # label = mtl_metadata_info['LANDSAT_SCENE_ID']
-    # TODO: Ensure `label` is correct as in L8 C1 indexing script?
-    label = mtl_data.level1_processing_record.landsat_scene_id.text
-    # print(f"satellite, instrument: {satellite}, {instrument}")
-    # print(f"acquisition_date, scene_center_time: {acquisition_date}, {scene_center_time}")
-    # print(f"processing_level, sensing_time: {processing_level}, {sensing_time}")
+
+    geo_ref_points = get_geo_ref_points(mtl_data, input_type)
     spatial_ref = osr.SpatialReference()
-    # spatial_ref.ImportFromEPSG(cs_code)
     spatial_ref.ImportFromEPSG(4326)
-    geo_ref_points = get_geo_ref_points(mtl_data)
-    # print(f'geo_ref_points: {geo_ref_points}')
     crs = spatial_ref.GetAttrValue("AUTHORITY", 0) + ":" + spatial_ref.GetAttrValue("AUTHORITY", 1)
-    # print(f'crs: {crs}')
     coordinates = get_coords(geo_ref_points, spatial_ref)
-    # print(f'coordinates: {coordinates}')
+    satellite = 'LANDSAT_7'
     bands = satellite_ref(satellite)
-    # print('bands:', bands)
-    # print("mtl_data.product_contents:", mtl_data.product_contents)
-    # print(f"mtl_data.product_contents.file_name_band_1: {mtl_data.product_contents.file_name_band_1}," \
-        #   f"{getattr(mtl_data.product_contents, f'file_name_band_1').text}")
     doc_bands = {}
     band_data = {'layer': 1}
     # Bands 1-5 and 7 have a templated file name based on thier band number. Others do not.
     unique_band_filename_map = \
         {'pixel_qa': 'file_name_quality_l1_pixel',
-         'tirs': 'file_name_band_st_b10',
+         'tirs': 'file_name_band_st_b6',
          'radsat_qa': 'file_name_quality_l1_radiometric_saturation',
          'cloud_qa': 'file_name_quality_l2_surface_reflectance_cloud'}
     for i, band in bands:
@@ -257,18 +235,18 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
         except:
             int_i = None
         if int_i and (int_i < 6 or int_i == 7):
-            # print('here1')
-            band_data_current['path'] = getattr(mtl_data.product_contents, f"file_name_band_{int(i)}").text
-        # if band == 'pixel_qa': 
-            # band_data['path'] = mtl_data.product_contents.file_name_quality_l1_pixel.text
+            if input_type == 'xml':
+                band_data_current['path'] = getattr(mtl_data.product_contents, f"file_name_band_{int(i)}").text
+            else: # json
+                band_data_current['path'] = mtl_data['LANDSAT_METADATA_FILE']['PRODUCT_CONTENTS'][f"FILE_NAME_BAND_{int(i)}"]
         else:
-            # print('here2')
-            # print(f'mtl_data.product_contents: {mtl_data.product_contents}')
-            # print(f'unique_band_filename_map[band]: {unique_band_filename_map[band]}')
-            band_data_current_path = getattr(mtl_data.product_contents, unique_band_filename_map[band])
-            band_data_current['path'] = band_data_current_path.text if band_data_current_path is not None else ""
+            if input_type == 'xml':
+                band_data_current_path = getattr(mtl_data.product_contents, unique_band_filename_map[band])
+                band_data_current['path'] = band_data_current_path.text if band_data_current_path is not None else ""
+            else: # json
+                band_data_current_path = mtl_data['LANDSAT_METADATA_FILE']['PRODUCT_CONTENTS'].get(unique_band_filename_map[band].capitalize())
+                band_data_current['path'] = band_data_current_path if band_data_current_path is not None else ""
         doc_bands[band] = band_data_current
-    # print("doc_bands:", doc_bands)
     # TODO: Remove `region_code` as in L8 C1 indexing script?
     doc = {
         'id': str(uuid.uuid5(uuid.NAMESPACE_URL, get_s3_url(bucket_name, object_key))),
@@ -289,23 +267,14 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
             'projection': {
                 'geo_ref_points': geo_ref_points,
                 'spatial_reference': crs, 
-                #'EPSG:%s' % cs_code,
                             }
                         },
         'image': {
             'bands': doc_bands, 
-            #{
-                # band: {
-                #     'path': getattr(mtl_data.product_contents, f"file_name_band_{int(i)}").text,
-                #     #mtl_product_info['FILE_NAME_BAND_' + band[0]],
-                #     'layer': 1,
-                # } for i, band in bands
-            # }
         },
         'lineage': {'source_datasets': {}},
     }
     doc = absolutify_paths(doc, bucket_name, object_key)
-    # print("doc:", doc)
     return doc
 
 
@@ -328,22 +297,11 @@ def archive_document(doc, uri, index):
 
 
 def add_dataset(doc, uri, index):
-    # print("add_dataset doc:", doc)
-    # print("add_dataset index:", index, type(index))
     doc_id = doc['id']
-    # logging.info("Indexing dataset: {} with URI:  {}".format(doc_id, uri))
-    # print(f'type(doc_id): {type(doc_id)}')
-    # print(f'type(uri): {type(uri)}')
 
     resolver = Doc2Dataset(index)
-    # print(f"resolver: {resolver}")
-    # print(f'uri: {uri}')
     dataset, err  = resolver(doc, uri)
-    # print(f"dataset, err: {dataset}, {err}")
     existing_dataset = index.datasets.get(doc_id)
-    # print(f"existing_dataset: {existing_dataset}")
-
-    # print('here in add_dataset()')
 
     if not existing_dataset:
         logging.info("Trying to index")
@@ -371,64 +329,46 @@ def worker(config, bucket_name, prefix, suffix, start_date, end_date, func, unsa
 
     while True:
         try:
-            # print(f"queue: {queue}")
             key = queue.get(timeout=60)
             if key == GUARDIAN:
                 break
             logging.info("Processing %s %s", key, current_process())
-            # print(f"bucket_name, key: {bucket_name}, {key}")
             obj = s3.Object(bucket_name, key).get(ResponseCacheControl='no-cache', RequestPayer='requester')
-            raw = obj['Body'].read()
+            raw = None
+            while raw is None:
+                try:
+                    raw = obj['Body'].read()
+                except urllib3.exceptions.ProtocolError: 
+                    print(f'Connection to bucket {bucket_name} lost.')
+                    sleep(5) # Wait for connection problems to resolve.
             raw_string = raw.decode('utf8')
 
-            # print(f"suffix: {suffix}")
             # Attempt to process text document
-            # txt_doc = _parse_group(iter(raw_string.split("\n")))['L1_METADATA_FILE']
             data = make_metadata_doc(raw_string, bucket_name, key)
-            # else:
-            #     yaml = YAML(typ=safety, pure=False)
-            #     yaml.default_flow_style = False
-            #     data = yaml.load(raw)
             if data:
                 uri = get_s3_url(bucket_name, key)
-                # print(f'uri: {uri}')
 
-                # print("data:", data)
-                # print(f"data: {type(data)}")
-                # data = BeautifulSoup(data, "lxml")
-                # print(f'data: {data}')
-                # print(f"data.landsat_metadata_file.image_attributes.date_acquired.text:"
-                    #   f"{data.landsat_metadata_file.image_attributes.date_acquired.text}")
                 cdt = data['creation_dt']
 
-                # print(f"cdf:", cdt)
                 # Only do the date check if we have dates set.
-                # print(f'cdt, start_date, end_date: {cdt, start_date, end_date}')
                 if cdt and start_date and end_date:
-                    # print(f"cdt, start_date, end_date: {cdt, start_date, end_date}")
-                    # print(f"cdt >= start_date: {cdt >= start_date}")
-                    # print(f"cdt < end_date: {cdt < end_date}")
                     # Use the fact lexicographical ordering matches the chronological ordering
                     if cdt >= start_date and cdt < end_date:
-                        # logging.info("calling %s", func)
-                        # print('here1')
                         func(data, uri, index)
                 else:
-                    # print('here2')
                     func(data, uri, index)
             else:
                 logging.error("Failed to get data returned... skipping file.")
+            queue.task_done()
         except Empty:
-            logging.error("Empty exception hit.")
-            break
+            sleep(1) # Queue is empty
         except EOFError:
             logging.error("EOF Error hit.")
-            break
+            queue.task_done()
         except ValueError as e:
             logging.error("Found data for a satellite that we can't handle: {}".format(e))
             import traceback
             traceback.print_exc()
-        finally:
             queue.task_done()
 
 
@@ -439,7 +379,6 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
 
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(bucket_name)
-    # print(f"Bucket: {bucket_name} prefix: {str(prefix)}")
     logging.info("Bucket: %s prefix: %s ", bucket_name, str(prefix))
     # safety = 'safe' if not unsafe else 'unsafe'
     worker_count = cpu_count() * 2
@@ -463,31 +402,24 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
     years = list(range(datetime.strptime(start_date, "%Y-%m-%d").year, \
                        datetime.strptime(end_date, "%Y-%m-%d").year+1))
     
-    count = 0
-    # (Old code)
-    for year in years:
-        for path, row in path_rows_to_index.values:
-            year_path_row_prefix = f"{prefix}/{year}/{path.zfill(3)}/{row.zfill(3)}"
-            for obj in bucket.objects.filter(Prefix = year_path_row_prefix, 
-                                             RequestPayer='requester'):
-                if (obj.key.endswith(suffix)):
-                    count += 1
-                    queue.put(obj.key)
-    # for obj in bucket.objects.filter(Prefix = str(prefix), RequestPayer='requester'):
-        # print(f"obj: {obj}")
-        # if (obj.key.endswith(suffix)):
-            # count += 1
-            # queue.put(obj.key)
-    # (New code)
-    # s3_client = boto3.client('s3')
-    # bucket_objs = s3_client.list_objects(Bucket=bucket_name, Prefix = str(prefix), RequestPayer='requester')
-    # print(f"bucket_objs['Contents']: {bucket_objs['Contents']}")
-    # for obj in bucket_objs['Contents']:
-    #     print(f"obj: {obj}")
-    #     # if (obj.key.endswith(suffix)):
-    #     if obj['Key'].endswith(suffix):
-    #         count += 1
-    #         queue.put(obj['Key'])
+    with open('success_dirs.txt', 'w') as success_file, \
+         open('failed_dirs.txt', 'w') as fail_file:
+        count = 0
+        # (Old code)
+        for year in years:
+            for path, row in path_rows_to_index.values:
+                year_path_row_prefix = f"{prefix}/{year}/{path.zfill(3)}/{row.zfill(3)}"
+                for obj in bucket.objects.filter(Prefix = year_path_row_prefix, 
+                                                RequestPayer='requester'):
+                    if (obj.key.endswith(suffix)):
+                        while queue.qsize() > 100:
+                            sleep(1)
+                        count += 1
+                        print(count)
+                        queue.put(obj.key)
+                        success_file.write(f'{obj.key}')
+                    else:
+                        fail_file.write(f'{obj.key}')
     
     logging.info("Found {} items to investigate".format(count))
 

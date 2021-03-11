@@ -14,6 +14,7 @@ import logging
 import click
 import re
 import boto3
+import urllib3
 import datacube
 from datacube.index.hl import Doc2Dataset
 from datacube.utils import changes
@@ -168,10 +169,8 @@ def satellite_ref(sat):
     elif sat in ('LANDSAT_7', 'LANDSAT_5'):
         sat_img = bands_ls7
     elif sat in ('USGS/EROS/LANDSAT_7', 'USGS/EROS/LANDSAT_5'):
-        # logging.info("We're working with the USGS supplied landsat 5 or 7.")
         sat_img = bands_ls57_usard
     elif sat == 'USGS/EROS/LANDSAT_8':
-        # logging.info("We're working with the USGS supplied landsat 8.")
         sat_img = bands_ls8_usard
     else:
         raise ValueError('Satellite data Not Supported')
@@ -314,7 +313,6 @@ def make_xml_doc(xmlstring, bucket_name, object_key):
     docdict = absolutify_paths(docdict, bucket_name, object_key)
 
     logging.info("Prepared docdict for metadata file: {}".format(object_key))
-    # print(json.dumps(docdict, indent=2))
 
     return docdict
 
@@ -331,8 +329,6 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
     product_type = 'L1TP'
     sensing_time = acquisition_date + ' ' + scene_center_time
     cs_code = 32600 + mtl_data['PROJECTION_PARAMETERS']['UTM_ZONE']
-    # print(f'cs_code: {cs_code}')
-    # logging.info(f'cs_code: {cs_code}')
     label = mtl_metadata_info['LANDSAT_SCENE_ID']
     spatial_ref = osr.SpatialReference()
     spatial_ref.ImportFromEPSG(cs_code)
@@ -431,7 +427,13 @@ def worker(config, bucket_name, prefix, suffix, start_date, end_date, func, unsa
                 break
             logging.info("Processing %s %s", key, current_process())
             obj = s3.Object(bucket_name, key).get(ResponseCacheControl='no-cache')
-            raw = obj['Body'].read()
+            raw = None
+            while raw is None:
+                try:
+                    raw = obj['Body'].read()
+                except urllib3.exceptions.ProtocolError: 
+                    print(f'Connection to bucket {bucket_name} lost.')
+                    sleep(5) # Wait for connection problems to resolve.
             raw_string = raw.decode('utf8')
 
             if suffix == AWS_PDS_TXT_SUFFIX:
@@ -458,15 +460,16 @@ def worker(config, bucket_name, prefix, suffix, start_date, end_date, func, unsa
                     func(data, uri, index, sources_policy)
             else:
                 logging.error("Failed to get data returned... skipping file.")
+            queue.task_done()
         except Empty:
-            logging.error("Empty exception hit.")
-            break
+            sleep(1) # Queue is empty
         except EOFError:
             logging.error("EOF Error hit.")
-            break
+            queue.task_done()
         except ValueError as e:
             logging.error("Found data for a satellite that we can't handle: {}".format(e))
-        finally:
+            import traceback
+            traceback.print_exc()
             queue.task_done()
 
 
@@ -506,6 +509,8 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
             year_path_row_prefix = f"{prefix}/{path.zfill(3)}/{row}/{year}"
             for obj in bucket.objects.filter(Prefix = year_path_row_prefix):
                 if (obj.key.endswith(suffix)):
+                    while queue.qsize() > 100:
+                        sleep(1)
                     count += 1
                     queue.put(obj.key)
     
