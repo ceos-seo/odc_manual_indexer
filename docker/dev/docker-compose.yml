@@ -27,4 +27,5 @@ services:
       - POSTGRES_DB=${ODC_DB_DATABASE}
       - POSTGRES_USER=${ODC_DB_USER}
       - POSTGRES_PASSWORD=${ODC_DB_PASSWORD}
+      - N=1000
       
