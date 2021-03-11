@@ -51,13 +51,13 @@ idx_scr_df = pd.DataFrame(
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
  ['ls8_usgs_sr_scene'],
  ['s3']],
- [f'{ls_c2_idx_scr_dir}/{ls8_c1_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
+ [f'{ls_c2_idx_scr_dir}/{ls5_c2_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
  
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
  ['ls5_l2_c2'],
  ['s3']],
-[f'{ls_c2_idx_scr_dir}/{ls5_c2_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
+[f'{ls_c2_idx_scr_dir}/{ls7_c2_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
  
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
