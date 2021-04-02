@@ -12,10 +12,6 @@ odc_ds_cols = [odc_ds_df_col_pth, odc_ds_df_col_desc,
 odc_ds_df = pd.DataFrame(
     columns=odc_ds_cols,
     data=[
-['s3://sentinel-s2-l1c/tiles',
- 'AWS Open Data Sentinel 2 Level 1C (Requester Pays)', 
- [],
- ''], # TODO: There is no prod def or indexing script for this.
 ['s3://deafrica-data/usgs/c1/l7',
  'Landsat 7 data for Africa (from GA - minimize queries)', 
  ['ls7_usgs_sr_scene'],
@@ -25,17 +21,25 @@ odc_ds_df = pd.DataFrame(
  ['ls8_usgs_sr_scene'],
  '.xml'],
 ['s3://usgs-landsat/collection02/level-2/standard/tm',
- 'USGS-hosted Landsat 5 C2 L2 Data (World)',
+ 'USGS-hosted Landsat 5 C2 L2 Data (World, Requester Pays)',
  ['ls5_l2_c2'],
  'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
 ['s3://usgs-landsat/collection02/level-2/standard/etm',
- 'USGS-hosted Landsat 7 C2 L2 Data (World)',
+ 'USGS-hosted Landsat 7 C2 L2 Data (World, Requester Pays)',
  ['ls7_l2_c2'],
  'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
 ['s3://usgs-landsat/collection02/level-2/standard/oli-tirs',
- 'USGS-hosted Landsat 8 C2 L2 Data (World)',
+ 'USGS-hosted Landsat 8 C2 L2 Data (World, Requester Pays)',
  ['ls8_l2_c2'],
- 'MTL.xml'] # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
+ 'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
+ ['s3://sentinel-s2-l1c/tiles',
+ 'AWS Open Data Sentinel 2 Level 1C (Requester Pays)', 
+ [],
+ ''], # TODO: There is no prod def or indexing script for this.
+ ['s3://sentinel-cogs/sentinel-s2-l2a-cogs',
+ 'Sentinel-2 Cloud-Optimized GeoTIFFs', 
+ ['s2_l2a_aws_cog'],
+ 'L2A.json'], # TODO: There is no prod def or indexing script for this.
  ])
 
 odc_ds_df_exp = odc_ds_df.explode(odc_ds_df_col_prds)

@@ -1,0 +1,126 @@
+name: s2_l2a_aws_cog
+description: Sentinel-2 L2A Cloud-Optimized GeoTIFFs at s3://sentinel-cogs/sentinel-s2-l2a-cogs
+metadata_type: eo
+
+metadata:
+    platform:
+        code: SENTINEL_2
+    instrument:
+        name: MSI
+    processing_level: L2A
+    # product_type: force-l2ps
+    format:
+        name: GeoTiff
+
+storage:
+    crs: EPSG:4326
+    resolution:
+        longitude: 9.009009e-5
+        latitude: -9.009009e-5
+
+measurements:
+    - name: coastal_aerosol
+      aliases: [B1, band_1, sr_band_1]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: blue
+      aliases: [B2, band_2, sr_band_2]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: green
+      aliases: [B3, band_3, sr_band_3]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: red
+      aliases: [B4, band_4, sr_band_4]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: rededge1
+      aliases: [B5, band_5, sr_band_5]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: rededge2
+      aliases: [B6, band_6, sr_band_6]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: rededge3
+      aliases: [B7, band_7, sr_band_7]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: nir1
+      aliases: [B8, band_8, sr_band_8]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: nir2
+      aliases: [B8a, band_8a, sr_band_8a]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: water_vapor
+      aliases: [B9, band_9, sr_band_9]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    # - name: swir_cirrus
+    #   aliases: [B10, band_10, sr_band_10]
+    #   dtype: uint16
+    #   nodata: 0
+    #   units: 'reflectance'
+    - name: swir1
+      aliases: [B11, band_11, sr_band_11]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: swir2
+      aliases: [B12, band_12, sr_band_12]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    - name: AOT
+      aliases: [aot, aerosol_optical_thickness]
+      dtype: uint16
+      nodata: 0
+      units: '1'
+    - name: SCL
+      aliases: [scl, scene_classification]
+      dtype: uint16
+      nodata: 0
+      units: 'reflectance'
+    # - name: LEVEL2_S2_QAI
+    #   aliases: [qai]
+    #   dtype: int16
+    #   nodata: 1
+    #   units: '1'
+    # - name: fmask
+    #   dtype: int16
+    #   nodata: 0
+    #   units: '1'
+    #   flags_definition:
+    #     slc:
+    #       bits: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    #       description: Scene classification
+    #       values:
+    #         0: Valid data (0-valid, 1-no data)
+    #         1: Cloud state
+    #         2: Cloud state
+    #         3: Cloud shadow flag
+    #         4: Snow flag
+    #         5: Water flag
+    #         6: Aerosol state
+    #         7: Aerosol state
+    #         8: Subzero flag
+    #         9: Saturation flag
+    #         10: High sun zenith flag
+    #         11: Illumination state
+    #         12: Illumination state
+    #         13: Slope flag
+    #         14: Water vapor flag
+    #         15: Empty

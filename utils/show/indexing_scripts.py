@@ -20,16 +20,25 @@ fmt_desc_suffix = '<string (The file suffix of dataset metadata documents)>'
 idx_scr_dir_name = 'index_scripts'
 
 # Path in the container vs path in the repo.
+## Landsat
 ls_c1_idx_scr_dir_container = f'{ls_c1_dir_container}/{idx_scr_dir_name}'
 ls_c1_idx_scr_dir = f'{ls_c1_dir}/{idx_scr_dir_name}'
 ls_c2_idx_scr_dir_container = f'{ls_c2_dir_container}/{idx_scr_dir_name}'
 ls_c2_idx_scr_dir = f'{ls_c2_dir}/{idx_scr_dir_name}'
+## Sentinel-2
+s2_l2a_idx_scr_dir_container = f'{s2_l2a_dir_container}/{idx_scr_dir_name}'
+s2_l2a_idx_scr_dir = f'{s2_l2a_dir}/{idx_scr_dir_name}'
 
+# Script names
+## Landsat
 ls7_c1_l2_idx_scr_name = 'ls7_public_bucket.py'
 ls8_c1_l2_idx_scr_name = 'ls8_public_bucket.py'
 ls5_c2_l2_idx_scr_name = 'ls5_l2_c2_public_bucket.py'
 ls7_c2_l2_idx_scr_name = 'ls7_l2_c2_public_bucket.py'
 ls8_c2_l2_idx_scr_name = 'ls8_l2_c2_public_bucket.py'
+## Sentinel-2
+s2_l2a_s3_cog_idx_scr_name = 's2_l2a_aws_cog.py'
+
 # End File Path Variables #
 
 idx_scr_df = pd.DataFrame(
@@ -68,7 +77,13 @@ idx_scr_df = pd.DataFrame(
  
  f'{ls_c1_idx_scr_dir}/{ls8_c1_l2_idx_scr_name}',
  ['ls8_l2_c2'],
- ['s3']]])
+ ['s3']],
+ [f'{s2_l2a_idx_scr_dir}/{s2_l2a_s3_cog_idx_scr_name} {fmt_desc_s3_bkt} '\
+  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
+  f'{s2_l2a_idx_scr_dir}/{s2_l2a_s3_cog_idx_scr_name}',
+  ['s2_l2a_aws_cog'],
+  ['s3']]])
+# 'python3 Sentinel-2/L2A/index_scripts/s2_l2a_aws_cog.py sentinel-cogs -p sentinel-s2-l2a-cogs --lat1=36.5 --lat2=37 --lon1=-76.5 --lon2=-76 --start_date=2020-01-01 --end_date=2020-12-31 --suffix=L2A.json'
 
 idx_scr_df_exp = idx_scr_df.explode(idx_scr_df_col_prds)
 from product import prd_df_col_prd
