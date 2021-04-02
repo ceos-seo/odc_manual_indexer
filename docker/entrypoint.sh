@@ -7,6 +7,4 @@ echo "db_username: ${ODC_DB_USER}" >> ~/.datacube.conf
 echo "db_password: ${ODC_DB_PASSWORD}" >> ~/.datacube.conf
 cp ~/.datacube.conf /etc/datacube.conf
 
-datacube system init
-
 exec $@
