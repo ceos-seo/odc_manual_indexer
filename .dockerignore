@@ -2,3 +2,5 @@
 **/*.h5
 **/*.h5:Zone.Identifier
 **/*.nc
+**/*.db
+**/*.tar.gz
