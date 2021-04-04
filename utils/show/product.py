@@ -33,6 +33,9 @@ prd_df = pd.DataFrame(
 [ls8_c2_l2_product_type, 'ls8_l2_c2', 'N/A', '30m', 
  'EPSG:4326', 'Landsat/collection_2/prod_defs/ls8_l2_c2_public_bucket.yaml', \
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml'],
+## Sentinel-1
+[sntnl1_product_type, 's1_rtc_card4l', 'from Copernicus Open Access Hub', '20m',
+ 'varies', 'Sentinel-1/prod_defs/s1_rtc_card4l.yaml', 'N/A'],
 ## Sentinel-2
 [sntnl2_l2a_product_type, 's2_ard_scene', 'from Copernicus Open Access Hub', '10-60m',
  'varies', 'Sentinel-2/L2A/prod_defs/s2_ard_scene_prod_def.yaml', 'N/A'],
