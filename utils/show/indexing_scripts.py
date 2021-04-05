@@ -25,6 +25,9 @@ ls_c1_idx_scr_dir_container = f'{ls_c1_dir_container}/{idx_scr_dir_name}'
 ls_c1_idx_scr_dir = f'{ls_c1_dir}/{idx_scr_dir_name}'
 ls_c2_idx_scr_dir_container = f'{ls_c2_dir_container}/{idx_scr_dir_name}'
 ls_c2_idx_scr_dir = f'{ls_c2_dir}/{idx_scr_dir_name}'
+## Sentinel-1
+s1_idx_scr_dir_container = f'{s1_dir_container}/{idx_scr_dir_name}'
+s1_idx_scr_dir = f'{s1_dir}/{idx_scr_dir_name}'
 ## Sentinel-2
 s2_l2a_idx_scr_dir_container = f'{s2_l2a_dir_container}/{idx_scr_dir_name}'
 s2_l2a_idx_scr_dir = f'{s2_l2a_dir}/{idx_scr_dir_name}'
@@ -36,6 +39,8 @@ ls8_c1_l2_idx_scr_name = 'ls8_public_bucket.py'
 ls5_c2_l2_idx_scr_name = 'ls5_l2_c2_public_bucket.py'
 ls7_c2_l2_idx_scr_name = 'ls7_l2_c2_public_bucket.py'
 ls8_c2_l2_idx_scr_name = 'ls8_l2_c2_public_bucket.py'
+## Sentinel-1
+s1_idx_scr_name = 's1_rtc_card4l.py'
 ## Sentinel-2
 s2_l2a_s3_cog_idx_scr_name = 's2_l2a_aws_cog.py'
 
@@ -44,6 +49,7 @@ s2_l2a_s3_cog_idx_scr_name = 's2_l2a_aws_cog.py'
 idx_scr_df = pd.DataFrame(
     columns = idx_scr_cols,
     data = [
+## Landsat
 [# Path-Format
  f'{ls_c1_idx_scr_dir}/{ls7_c1_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
@@ -78,12 +84,19 @@ idx_scr_df = pd.DataFrame(
  f'{ls_c1_idx_scr_dir}/{ls8_c1_l2_idx_scr_name}',
  ['ls8_l2_c2'],
  ['s3']],
- [f'{s2_l2a_idx_scr_dir}/{s2_l2a_s3_cog_idx_scr_name} {fmt_desc_s3_bkt} '\
+## Sentinel-1
+[f'{s1_idx_scr_dir}/{s1_idx_scr_name} {fmt_desc_s3_bkt} '\
+  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
+  f'{s1_idx_scr_dir}/{s1_idx_scr_name}',
+  ['s1_rtc_card4l'],
+  ['s3']],
+## Sentinel-2
+[f'{s2_l2a_idx_scr_dir}/{s2_l2a_s3_cog_idx_scr_name} {fmt_desc_s3_bkt} '\
   f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
   f'{s2_l2a_idx_scr_dir}/{s2_l2a_s3_cog_idx_scr_name}',
   ['s2_l2a_aws_cog'],
   ['s3']]])
-# 'python3 Sentinel-2/L2A/index_scripts/s2_l2a_aws_cog.py sentinel-cogs -p sentinel-s2-l2a-cogs --lat1=36.5 --lat2=37 --lon1=-76.5 --lon2=-76 --start_date=2020-01-01 --end_date=2020-12-31 --suffix=L2A.json'
+'python3 Sentinel-1/index_scripts/s1_rtc_card4l.py sh.s1-card4l.eu-central-1.nasa -p order_2021-03-17T15:13:58Z/s1_rtc --lat1=36 --lat2=37 --lon1=-77 --lon2=-76 --start_date=2017-01-01 --end_date=2017-12-31 --suffix=metadata.json'
 
 idx_scr_df_exp = idx_scr_df.explode(idx_scr_df_col_prds)
 from product import prd_df_col_prd

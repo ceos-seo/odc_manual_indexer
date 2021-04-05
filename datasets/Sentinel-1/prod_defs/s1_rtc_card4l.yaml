@@ -1,0 +1,44 @@
+name: s1_rtc_card4l
+description: Sentinel-2 L2A Cloud-Optimized GeoTIFFs at s3://sentinel-cogs/sentinel-s2-l2a-cogs
+metadata_type: eo
+
+metadata:
+    platform:
+        code: SENTINEL_1
+    instrument:
+        name: CSAR
+    processing_level: RTC
+    format:
+        name: GeoTiff
+
+storage:
+    crs: EPSG:4326
+    resolution:
+        longitude: 1.801801e-4
+        latitude: -1.801801e-4
+
+measurements:
+    - name: vv
+      aliases: [VV]
+      dtype: float32
+      nodata: -9999
+      units: '1'
+    - name: vh
+      aliases: [VH]
+      dtype: float32
+      nodata: -9999
+      units: '1'
+    - name: area
+      aliases: [normalized_scattering_area]
+      dtype: float32
+      nodata: -9999
+      units: '1'
+    - name: angle
+      aliases: [local_incidence_angle]
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: mask
+      dtype: uint8
+      nodata: 0
+      units: '1'

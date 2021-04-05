@@ -38,36 +38,21 @@ GENERAL_LANDSAT_XML_SUFFIX = '.xml'
 
 MTL_PAIRS_RE = re.compile(r'(\w+)\s=\s(.*)')
 
-bands_s2_l2a = [
-    ('1', 'coastal_aerosol'),
-    ('2', 'blue'),
-    ('3', 'green'),
-    ('4', 'red'),
-    ('5', 'rededge1'),
-    ('6', 'rededge2'),
-    ('7', 'rededge3'),
-    ('8', 'nir1'),
-    ('8A', 'nir2'),
-    ('9', 'water_vapor'),
-    ('11', 'swir1'),
-    ('12', 'swir2'),
-    ('AOT', 'AOT'),
-    ('SCL', 'SCL')
+bands_s1_rtc = [
+    ('vv', 'vv'),
+    ('vh', 'vh'),
+    ('area', 'area'),
+    ('angle', 'angle'),
+    ('mask', 'mask'),
 ]
 
 band_file_map = {
-    'blue': 'sr_band1',
-    'green': 'sr_band2',
-    'red': 'sr_band3',
-    'nir': 'sr_band4',
-    'swir1': 'sr_band5',
-    'swir2': 'sr_band7',
-    'pixel_qa': 'pixel_qa',
-    'radsat_qa': 'radsat_qa',
-    'sr_cloud_qa': 'sr_cloud_qa',
-    'sr_atmos_opacity': 'sr_atmos_opacity'
+    'vv': 'VV',
+    'vh': 'VH',
+    'area': 'AREA',
+    'angle': 'ANGLE',
+    'mask': 'MASK',
 }
-
 
 def _parse_value(s):
     s = s.strip('"')
@@ -129,9 +114,9 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
     s3_dir_path = f's3://{bucket_name}/{s3_dir_path_prefix}'
     mtl_data = json.loads(mtl_data)
 
-    instrument = 'MSI'
-    processing_level = 'L2A'
-    center_dt = mtl_data['properties']['datetime']
+    instrument = 'CSAR'
+    processing_level = 'RTC'
+    center_dt = mtl_data['properties']['datetime'][:-8] + 'Z'
     creation_dt = center_dt
     
     geo_ref_points = get_geo_ref_points(mtl_data)
@@ -140,32 +125,31 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
     crs = spatial_ref.GetAttrValue("AUTHORITY", 0) + ":" + spatial_ref.GetAttrValue("AUTHORITY", 1)
     coordinates = get_coords(geo_ref_points, spatial_ref)
 
-    satellite = 'SENTINEL_2'
-    bands = bands_s2_l2a
+    satellite = 'SENTINEL_1'
+    bands = bands_s1_rtc
     doc_bands = {}
     band_data = {'layer': 1}
-    unique_band_filename_map = \
-        {'nir2': 'B8A',
-         'AOT': 'AOT',
-         'SCL': 'SCL'}
-    for i, band in bands:
+    
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(bucket_name)
+    file_paths = [obj.key for obj in 
+                  bucket.objects.filter(Prefix = s3_dir_path_prefix, 
+                                        RequestPayer='requester')]
+    for i, band in bands:    
+        band_file_suffix = f'{band_file_map[band]}.tif'
+        for file_path in file_paths:
+            if file_path.endswith(band_file_suffix):
+                band_file_map[band] = os.path.basename(file_path)
         import copy
         band_data_current = copy.deepcopy(band_data)
-        try:
-            int_i = int(i)
-        except:
-            int_i = None
-        if int_i and int_i <= 12:
-            band_data_current['path'] = f'{s3_dir_path}/B{i.zfill(2)}.tif'
-        else:
-            band_data_current_path = f'{s3_dir_path}/{unique_band_filename_map[band]}.tif'
-            band_data_current['path'] = band_data_current_path if band_data_current_path is not None else ""
+        band_data_current_path = f'{s3_dir_path}/{band_file_map[band]}'
+        band_data_current['path'] = band_data_current_path if band_data_current_path is not None else ""
         doc_bands[band] = band_data_current
     doc = {
         'id': str(uuid.uuid5(uuid.NAMESPACE_URL, get_s3_url(bucket_name, object_key))),
-        'product': {'name': 's2_l2a_aws_cog'},
+        'product': {'name': 's1_rtc_card4l'},
         'processing_level': processing_level,
-        'creation_dt': str(creation_dt),
+        'creation_dt': creation_dt,
         'platform': {'code': satellite},
         'instrument': {'name': instrument},
         'extent': {
@@ -298,19 +282,6 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
         processess.append(proc)
         proc.start()
 
-    # Determine the UTM tiles to load data for.
-    ## 1. Get the zone number/letter bounds.
-    import utm
-    _, _, zone_num_ll, zone_letter_ll = utm.from_latlon(lat1, lon1)
-    _, _, zone_num_ur, zone_letter_ur = utm.from_latlon(lat2, lon2)
-    ## 2. Determine the zone number and letter ranges.
-    def char_range(c1, c2):
-        """Generates the characters from `c1` to `c2`, inclusive."""
-        for c in range(ord(c1), ord(c2)+1):
-            yield chr(c)
-    zone_num_range = list(range(zone_num_ll, zone_num_ur+1))
-    zone_letter_range = list(char_range(zone_letter_ll, zone_letter_ur))
-
     # Subset the years based on the requested time range (`start_date`, `end_date`).
     years = list(range(datetime.strptime(start_date, "%Y-%m-%d").year, \
                        datetime.strptime(end_date, "%Y-%m-%d").year+1))
@@ -318,16 +289,21 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
     count = 0
     # (Old code)
     for year in years:
-        for zone_num in zone_num_range:
-            for zone_letter in zone_letter_range:
-                zone_num_letter_prefix = f"{prefix}/{zone_num}/{zone_letter}"
-                for obj in bucket.objects.filter(Prefix = zone_num_letter_prefix, 
-                                                 RequestPayer='requester'):
-                    if (obj.key.endswith(suffix)):
-                        while queue.qsize() > 100:
-                            sleep(1)
-                        count += 1
-                        queue.put(obj.key)
+        for lat_int in range(int(lat1), int(np.ceil(lat2))+1):
+            lat_str = f'N{f"{lat_int}".zfill(2)}' if lat_int > 0 else f'S{f"{-lat_int}".zfill(2)}'
+            for lon_int in range(int(lon1), int(np.ceil(lon2))+1):    
+                lon_str = f'E{f"{lon_int}".zfill(3)}' if lon_int > 0 else f'W{f"{-lon_int}".zfill(3)}'
+                lat_lon_str = f'{lat_str}{lon_str}'
+                for month in range(1,13):
+                    for day in range(1,32):
+                        lat_lon_year_month_day_prefix = f"{prefix}/{lat_lon_str}/{year}/{str(month).zfill(2)}/{str(day).zfill(2)}"
+                        for obj in bucket.objects.filter(Prefix = lat_lon_year_month_day_prefix, 
+                                                         RequestPayer='requester'):
+                            if (obj.key.endswith(suffix)):
+                                while queue.qsize() > 100:
+                                    sleep(1)
+                                count += 1
+                                queue.put(obj.key)
     
     logging.info("Found {} items to investigate".format(count))
 
@@ -355,13 +331,12 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
 @click.option('--sources_policy', default="verify", help="verify, ensure, skip")
 def main(bucket_name, config, prefix, suffix, start_date, end_date, lat1, lat2, lon1, lon2, archive, unsafe, sources_policy):
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
-    start_date = "2015-06-23" if start_date is None else start_date
+    start_date = "2016-04-25" if start_date is None else start_date
     end_date = "2029-12-31" if end_date is None else end_date
     lat1 = -90 if lat1 is None else float(lat1)
     lat2 = 90 if lat2 is None else float(lat2)
-    # latitude must be in range (-80, 84) for `utm.from_latlon()`.
-    lat1 = max(-80, min(lat1, 84))
-    lat2 = max(-80, min(lat2, 84))
+    lat1 = max(-90, min(lat1, 90))
+    lat2 = max(-90, min(lat2, 90))
     lon1 = -180 if lon1 is None else float(lon1)
     lon2 = 180 if lon2 is None else float(lon2)
     logging.info(f"lat1, lat2, lon1, lon2: {lat1, lat2, lon1, lon2}")

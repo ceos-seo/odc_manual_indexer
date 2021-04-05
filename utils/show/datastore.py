@@ -12,6 +12,7 @@ odc_ds_cols = [odc_ds_df_col_pth, odc_ds_df_col_desc,
 odc_ds_df = pd.DataFrame(
     columns=odc_ds_cols,
     data=[
+## Landsat
 ['s3://deafrica-data/usgs/c1/l7',
  'Landsat 7 data for Africa (from GA - minimize queries)', 
  ['ls7_usgs_sr_scene'],
@@ -32,14 +33,16 @@ odc_ds_df = pd.DataFrame(
  'USGS-hosted Landsat 8 C2 L2 Data (World, Requester Pays)',
  ['ls8_l2_c2'],
  'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
- ['s3://sentinel-s2-l1c/tiles',
+## Sentinel-1
+['s3://sh.s1-card4l.eu-central-1.nasa/order_2021-03-17T15:13:58Z/s1_rtc',
  'AWS Open Data Sentinel 2 Level 1C (Requester Pays)', 
- [],
- ''], # TODO: There is no prod def or indexing script for this.
- ['s3://sentinel-cogs/sentinel-s2-l2a-cogs',
+ ['s1_rtc_card4l'],
+ 'metadata.json'],
+## Sentinel-2
+['s3://sentinel-cogs/sentinel-s2-l2a-cogs',
  'Sentinel-2 Cloud-Optimized GeoTIFFs', 
  ['s2_l2a_aws_cog'],
- 'L2A.json'], # TODO: There is no prod def or indexing script for this.
+ 'L2A.json'],
  ])
 
 odc_ds_df_exp = odc_ds_df.explode(odc_ds_df_col_prds)
