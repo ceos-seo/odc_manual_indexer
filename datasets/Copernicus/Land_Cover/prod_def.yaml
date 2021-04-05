@@ -1,0 +1,98 @@
+name: copernicus_lc100
+description: Copernicus annual dynamic global Land Cover product at 100m spatial resolution (CGLS-LC100)
+metadata_type: eo
+
+metadata:
+    product:
+      name: copernicus_lc100
+    platform:
+      code: Proba-V
+    instrument:
+      name: VEGETATION
+    product_type: CGLS-LC100
+    format:
+      name: GeoTiff
+
+storage:
+    crs: EPSG:4326
+    resolution:
+        longitude: 0.004166666666666667
+        latitude: -0.004166666666666667
+
+measurements:
+    - name: 'Discrete_Classification_map'
+      aliases: ['Discrete-Classification-map', 'dc_map']
+      dtype: uint8
+      nodata: 0
+      units: '1'
+    - name: 'Discrete_Classification_proba'
+      aliases: ['Discrete-Classification-proba', 'dc_proba']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'Forest_Type_layer'
+      aliases: ['Forest-Type-layer', 'forest_type']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'Bare_CoverFraction_layer'
+      aliases: ['Bare-CoverFraction-layer', 'bare_frac']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'Crops_CoverFraction_layer'
+      aliases: ['Crops-CoverFraction-layer', 'crops_frac']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'Grass_CoverFraction_layer'
+      aliases: ['Grass-CoverFraction-layer', 'grass_frac']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'MossLichen_CoverFraction_layer'
+      aliases: ['MossLichen-CoverFraction-layer', 'mosslichen_frac']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'Shrub_CoverFraction_layer'
+      aliases: ['Shrub-CoverFraction-layer', 'shrub_frac']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'Snow_CoverFraction_layer'
+      aliases: ['Snow-CoverFraction-layer', 'snow_frac']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'Tree_CoverFraction_layer'
+      aliases: ['Tree-CoverFraction-layer', 'tree_frac']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'BuiltUp_CoverFraction_layer'
+      aliases: ['BuiltUp-CoverFraction-layer', 'builtup_frac']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'PermanentWater_CoverFraction_layer'
+      aliases: ['PermanentWater-CoverFraction-layer', 'permawater_frac']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'SeasonalWater_CoverFraction_layer'
+      aliases: ['SeasonalWater-CoverFraction-layer', 'seaswater_frac']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+    - name: 'DataDensityIndicator'
+      aliases: ['ddi']
+      dtype: uint8
+      nodata: 255
+      units: '1'
+# Uncomment when issues are resolved
+#    - name: 'Change_Confidence_layer'
+#      aliases: ['Change-Confidence-layer', 'changeconf_layer']
+#      dtype: uint8
+#      nodata: 255
+#      units: '1'
