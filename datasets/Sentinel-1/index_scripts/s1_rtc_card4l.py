@@ -22,6 +22,7 @@ from ruamel.yaml import YAML
 import json
 from bs4 import BeautifulSoup
 from datetime import datetime
+import numpy as np
 
 from multiprocessing import Process, current_process, Queue, Manager, cpu_count
 from time import sleep, time
@@ -45,14 +46,6 @@ bands_s1_rtc = [
     ('angle', 'angle'),
     ('mask', 'mask'),
 ]
-
-band_file_map = {
-    'vv': 'VV',
-    'vh': 'VH',
-    'area': 'AREA',
-    'angle': 'ANGLE',
-    'mask': 'MASK',
-}
 
 def _parse_value(s):
     s = s.strip('"')
@@ -116,7 +109,8 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
 
     instrument = 'CSAR'
     processing_level = 'RTC'
-    center_dt = mtl_data['properties']['datetime'][:-8] + 'Z'
+    center_dt = mtl_data['properties']['datetime']
+    center_dt = re.sub('\.\d+Z', 'Z', mtl_data['properties']['datetime'])
     creation_dt = center_dt
     
     geo_ref_points = get_geo_ref_points(mtl_data)
@@ -125,6 +119,13 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
     crs = spatial_ref.GetAttrValue("AUTHORITY", 0) + ":" + spatial_ref.GetAttrValue("AUTHORITY", 1)
     coordinates = get_coords(geo_ref_points, spatial_ref)
 
+    band_file_map = {
+        'vv': 'VV',
+        'vh': 'VH',
+        'area': 'AREA',
+        'angle': 'ANGLE',
+        'mask': 'MASK',
+    }
     satellite = 'SENTINEL_1'
     bands = bands_s1_rtc
     doc_bands = {}
@@ -289,9 +290,9 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
     count = 0
     # (Old code)
     for year in years:
-        for lat_int in range(int(lat1), int(np.ceil(lat2))+1):
+        for lat_int in range(int(np.floor(lat1)), int(np.ceil(lat2))):
             lat_str = f'N{f"{lat_int}".zfill(2)}' if lat_int > 0 else f'S{f"{-lat_int}".zfill(2)}'
-            for lon_int in range(int(lon1), int(np.ceil(lon2))+1):    
+            for lon_int in range(int(np.floor(lon1)), int(np.ceil(lon2))):    
                 lon_str = f'E{f"{lon_int}".zfill(3)}' if lon_int > 0 else f'W{f"{-lon_int}".zfill(3)}'
                 lat_lon_str = f'{lat_str}{lon_str}'
                 for month in range(1,13):
