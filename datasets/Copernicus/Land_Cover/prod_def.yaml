@@ -91,6 +91,8 @@ measurements:
       nodata: 255
       units: '1'
 # Uncomment when issues are resolved
+# This does not exist in 2015, so we need to determine how to allow indexing
+# of the 2015 data while still including this measurement in the definition.
 #    - name: 'Change_Confidence_layer'
 #      aliases: ['Change-Confidence-layer', 'changeconf_layer']
 #      dtype: uint8
