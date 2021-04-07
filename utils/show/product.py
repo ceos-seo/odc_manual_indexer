@@ -44,4 +44,9 @@ prd_df = pd.DataFrame(
 ## JERS-1 
 [jers1_sar_hh_product_type, 'jers_sar_mosaic', 'N/A', '25m', 'EPSG:4326', 'JERS-1/prod_defs/jers_sar_mosaic.yaml',
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/products/ls_usgs_sr_scene.yaml'],
+## Copernicus Global Land Cover
+[copernicus_glc_product_type, 'copernicus_lc100', 'N/A', '100m', 'EPSG:4326', 'Copernicus/Land_Cover/prod_def.yaml',
+ 'N/A'],
 ])
+
+# Copernicus/Land_Cover/indexer.py vito.landcover.global --prefix v3.0.1 --lat1 40 --lat2 40 --lon1 -100 --lon2 -80

@@ -15,6 +15,8 @@ sntnl2_l1c_product_type = 'Sentinel-2 Level 1C'
 sntnl2_l2a_product_type = 'Sentinel-2 Level 2A (Copernicus Format)'
 ## JERS-1
 jers1_sar_hh_product_type = 'JERS-1 SAR (HH)'
+## Copernicus Global Land Cover
+copernicus_glc_product_type = 'Copernicus Global Land Cover'
 
 # File Path Variables #
 dataset_dir = 'datasets'
@@ -30,5 +32,8 @@ s1_dir = f'{dataset_dir}/{s1_dir_container}'
 ## Sentinel-2
 s2_l2a_dir_container = 'Sentinel-2/L2A'
 s2_l2a_dir = f'{dataset_dir}/{s2_l2a_dir_container}'
+## Copernicus Global Land Cover
+copernicus_glc_dir_container = 'Copernicus/Land_Cover'
+copernicus_glc_dir = f'{dataset_dir}/{copernicus_glc_dir_container}'
 
 # End File Path Variables #

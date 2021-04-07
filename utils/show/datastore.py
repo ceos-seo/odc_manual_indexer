@@ -43,6 +43,11 @@ odc_ds_df = pd.DataFrame(
  'Sentinel-2 Cloud-Optimized GeoTIFFs', 
  ['s2_l2a_aws_cog'],
  'L2A.json'],
+## Copernicus Global Land Cover
+['s3://vito.landcover.global/v3.0.1',
+ 'Copernicus annual Global Land Cover GeoTIFFs', 
+ ['copernicus_lc100'],
+ ''],
  ])
 
 odc_ds_df_exp = odc_ds_df.explode(odc_ds_df_col_prds)
