@@ -165,9 +165,9 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
             'Change-Confidence-layer': 'Change_Confidence_layer',}
     for band_file_name, band_name in band_map.items():    
         for file_path in file_paths:
-            print(f'FILE_PATH: {file_path}')
             if re.search(band_file_name, file_path):
                 doc_bands[band_name] = {'path': os.path.basename(file_path)}
+    
     doc = {
         'id': str(uuid.uuid5(uuid.NAMESPACE_URL, get_s3_url(bucket_name, object_key))),
         'product': {'name': 'copernicus_lc100'},
@@ -319,7 +319,6 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
                 lon_str = f'E{f"{lon_int}".zfill(3)}' if lon_int > 0 else f'W{f"{-lon_int}".zfill(3)}'
                 lat_lon_str = f'{lon_str}{lat_str}'
                 lat_lon_year_month_day_prefix = f"{prefix}/{year}/{lat_lon_str}"
-                print(f'PREFIX: {lat_lon_year_month_day_prefix}')
                 for obj in bucket.objects.filter(Prefix = lat_lon_year_month_day_prefix, 
                                                  RequestPayer='requester'):
                     if re.search('Discrete-Classification-map', obj.key):
