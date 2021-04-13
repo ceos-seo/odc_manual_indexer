@@ -1,5 +1,5 @@
 name: s1_rtc_card4l
-description: Sentinel-2 L2A Cloud-Optimized GeoTIFFs at s3://sentinel-cogs/sentinel-s2-l2a-cogs
+description: Sentinel-1 RTC Cloud-Optimized GeoTIFFs
 metadata_type: eo
 
 metadata:

@@ -13,6 +13,10 @@ odc_ds_df = pd.DataFrame(
     columns=odc_ds_cols,
     data=[
 ## Landsat
+['s3://deafrica-data/usgs/c1/l5',
+ 'Landsat 5 data for Africa (from GA - minimize queries)', 
+ ['ls5_usgs_sr_scene'],
+  '.xml'],
 ['s3://deafrica-data/usgs/c1/l7',
  'Landsat 7 data for Africa (from GA - minimize queries)', 
  ['ls7_usgs_sr_scene'],
@@ -35,12 +39,12 @@ odc_ds_df = pd.DataFrame(
  'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
 ## Sentinel-1
 ['s3://sh.s1-card4l.eu-central-1.nasa/order_2021-03-17T15:13:58Z/s1_rtc',
- 'AWS Open Data Sentinel 2 Level 1C (Requester Pays)', 
+ 'Sentinel-1 RTC Cloud-Optimized GeoTIFFs', 
  ['s1_rtc_card4l'],
  'metadata.json'],
 ## Sentinel-2
 ['s3://sentinel-cogs/sentinel-s2-l2a-cogs',
- 'Sentinel-2 Cloud-Optimized GeoTIFFs', 
+ 'Sentinel-2 L2A Cloud-Optimized GeoTIFFs', 
  ['s2_l2a_aws_cog'],
  'L2A.json'],
 ## Copernicus Global Land Cover

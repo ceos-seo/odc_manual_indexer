@@ -48,11 +48,11 @@ measurements:
       dtype: int16
       nodata: -9999
       units: '1'
-    - name: 'lwir'
-      aliases: [band_6, bt_band6]
-      dtype: int16
-      nodata: -9999
-      units: '1'
+    # - name: 'lwir'
+    #   aliases: [band_6, bt_band6]
+    #   dtype: int16
+    #   nodata: -9999
+    #   units: '1'
     - name: 'pixel_qa'
       aliases: [pixel_qa]
       dtype: uint16

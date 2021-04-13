@@ -507,7 +507,8 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
     for year in years:
         for path, row in path_rows_to_index.values:
             year_path_row_prefix = f"{prefix}/{path.zfill(3)}/{row}/{year}"
-            for obj in bucket.objects.filter(Prefix = year_path_row_prefix):
+            for obj in bucket.objects.filter(Prefix = year_path_row_prefix,
+                                             RequestPayer='requester'):
                 if (obj.key.endswith(suffix)):
                     while queue.qsize() > 100:
                         sleep(1)
@@ -546,7 +547,7 @@ def main(bucket_name, config, prefix, suffix, start_date, end_date, lat1, lat2, 
     lat2 = 90 if lat2 is None else float(lat2)
     lon1 = -180 if lon1 is None else float(lon1)
     lon2 = 180 if lon2 is None else float(lon2)
-    logging.info(f"lat1, lat2, lon1, lon2: {lat1, lat2, lon1, lon2}")
+    # logging.info(f"lat1, lat2, lon1, lon2: {lat1, lat2, lon1, lon2}")
     action = archive_document if archive else add_dataset
     iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, lat1, lat2, lon1, lon2, action, unsafe, sources_policy)
    

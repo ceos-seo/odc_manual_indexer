@@ -37,6 +37,8 @@ copernicus_glc_idx_scr_dir = f'{copernicus_glc_dir}/{idx_scr_dir_name}'
 
 # Script names
 ## Landsat
+ls5_c1_l2_idx_scr_name = 'ls5_public_bucket.py'
+deafrica_data_extents = '--lat1=-36 --lat2=38 --lon1=-18 --lon2=52'
 ls7_c1_l2_idx_scr_name = 'ls7_public_bucket.py'
 ls8_c1_l2_idx_scr_name = 'ls8_public_bucket.py'
 ls5_c2_l2_idx_scr_name = 'ls5_l2_c2_public_bucket.py'
@@ -57,8 +59,16 @@ idx_scr_df = pd.DataFrame(
     data = [
 ## Landsat
 [# Path-Format
- f'{ls_c1_idx_scr_dir}/{ls7_c1_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
- f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
+f'{ls_c1_idx_scr_dir}/{ls5_c1_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
+ f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix} {deafrica_data_extents}',
+ # Origin
+ 'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
+ # Products
+ ['ls5_usgs_sr_scene'],
+ # Supported dataset origin types.
+ ['s3']],
+[f'{ls_c1_idx_scr_dir}/{ls7_c1_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
+ f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix} {deafrica_data_extents}',
  # Origin
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
  # Products
@@ -66,7 +76,7 @@ idx_scr_df = pd.DataFrame(
  # Supported dataset origin types.
  ['s3']],
 [f'{ls_c1_idx_scr_dir}/{ls8_c1_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
- f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
+ f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix} {deafrica_data_extents}',
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
  ['ls8_usgs_sr_scene'],
  ['s3']],
