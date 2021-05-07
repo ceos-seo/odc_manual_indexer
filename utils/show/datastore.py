@@ -38,8 +38,14 @@ odc_ds_df = pd.DataFrame(
  ['ls8_l2_c2'],
  'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
 ## Sentinel-1
+### Sentinel-1 RTC eu-central-1
 ['s3://sh.s1-card4l.eu-central-1.nasa/order_2021-03-17T15:13:58Z/s1_rtc',
  'Sentinel-1 RTC Cloud-Optimized GeoTIFFs', 
+ ['s1_rtc_card4l'],
+ 'metadata.json'],
+### Sentinel-1 RTC us-east-1
+ ['s3://va-s3-requesterpays/order_2021-03-17T15:13:58Z/s1_rtc',
+  'Sentinel-1 RTC Cloud-Optimized GeoTIFFs', 
  ['s1_rtc_card4l'],
  'metadata.json'],
 ## Sentinel-2

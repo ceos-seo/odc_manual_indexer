@@ -46,6 +46,7 @@ ls7_c2_l2_idx_scr_name = 'ls7_l2_c2_public_bucket.py'
 ls8_c2_l2_idx_scr_name = 'ls8_l2_c2_public_bucket.py'
 ## Sentinel-1
 s1_idx_scr_name = 's1_rtc_card4l.py'
+s1_data_extents = '--lat1=35 --lat2=39 --lon1=-85 --lon2=-75 --start_date=2017-01-01 --end_date=2019-12-31'
 ## Sentinel-2
 s2_l2a_s3_cog_idx_scr_name = 's2_l2a_aws_cog.py'
 ## Copernicus Global Land Cover
@@ -97,7 +98,7 @@ f'{ls_c1_idx_scr_dir}/{ls5_c1_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
  ['s3']],
 ## Sentinel-1
 [f'{s1_idx_scr_dir}/{s1_idx_scr_name} {fmt_desc_s3_bkt} '\
-  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
+  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix} {s1_data_extents}',
   f'{s1_idx_scr_dir}/{s1_idx_scr_name}',
   ['s1_rtc_card4l'],
   ['s3']],
