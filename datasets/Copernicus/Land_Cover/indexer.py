@@ -356,10 +356,10 @@ def main(bucket_name, config, prefix, suffix, start_date, end_date, lat1, lat2, 
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
     start_date = "2015-01-01" if start_date is None else start_date
     end_date = "2029-12-31" if end_date is None else end_date
-    lat1 = -90 if lat1 is None else float(lat1)
-    lat2 = 90 if lat2 is None else float(lat2)
-    lat1 = max(-90, min(lat1, 90))
-    lat2 = max(-90, min(lat2, 90))
+    lat1 = -80 if lat1 is None else float(lat1)
+    lat2 = 80 if lat2 is None else float(lat2)
+    lat1 = max(-80, min(lat1, 80))
+    lat2 = max(-80, min(lat2, 80))
     lon1 = -180 if lon1 is None else float(lon1)
     lon2 = 180 if lon2 is None else float(lon2)
     logging.info(f"lat1, lat2, lon1, lon2: {lat1, lat2, lon1, lon2}")
