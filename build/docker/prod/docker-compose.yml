@@ -5,16 +5,16 @@ services:
     image: ${OUT_IMG}
     build:
       context: ${DKR_CMP_CONTEXT}
-      dockerfile: docker/prod/Dockerfile
+      dockerfile: build/docker/prod/Dockerfile
       args:
         WORKDIR: ${WORKDIR}
-        ODC_DB_HOSTNAME: ${ODC_DB_HOSTNAME}
-        ODC_DB_DATABASE: ${ODC_DB_DATABASE}
-        ODC_DB_USER: ${ODC_DB_USER}
-        ODC_DB_PASSWORD: ${ODC_DB_PASSWORD}
-        ODC_DB_PORT: ${ODC_DB_PORT}
     command: "tail -f /dev/null"
     environment:
+      - ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME}
+      - ODC_DB_DATABASE=${ODC_DB_DATABASE}
+      - ODC_DB_USER=${ODC_DB_USER}
+      - ODC_DB_PASSWORD=${ODC_DB_PASSWORD}
+      - ODC_DB_PORT=${ODC_DB_PORT}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:

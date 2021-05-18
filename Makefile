@@ -1,6 +1,6 @@
 SHELL:=/bin/bash
-docker_compose_dev = docker-compose --project-directory docker/dev -f docker/dev/docker-compose.yml
-docker_compose_prod = docker-compose --project-directory docker/prod -f docker/prod/docker-compose.yml
+docker_compose_dev = docker-compose --project-directory build/docker/dev -f build/docker/dev/docker-compose.yml
+docker_compose_prod = docker-compose --project-directory build/docker/prod -f build/docker/prod/docker-compose.yml
 
 IMG_REPO?=jcrattzama/odc_manual_indexer
 IMG_VER?=
