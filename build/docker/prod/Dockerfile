@@ -23,16 +23,6 @@ COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
 # Setup the Open Data Cube configuration.
-# ARG ODC_DB_HOSTNAME="odc-db"
-# ARG ODC_DB_DATABASE="datacube"
-# ARG ODC_DB_USER="dc_user"
-# ARG ODC_DB_PASSWORD="localuser1234"
-# ARG ODC_DB_PORT="5432"
-# ENV ODC_DB_HOSTNAME=${ODC_DB_HOSTNAME} \
-#     ODC_DB_DATABASE=${ODC_DB_DATABASE} \
-#     ODC_DB_USER=${ODC_DB_USER} \
-#     ODC_DB_PASSWORD=${ODC_DB_PASSWORD} \
-#     ODC_DB_PORT=${ODC_DB_PORT}
 ENV ODC_DB_HOSTNAME \
     ODC_DB_DATABASE \
     ODC_DB_USER \
