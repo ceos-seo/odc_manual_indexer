@@ -141,8 +141,3 @@ For rows with no path (the `DsPath` column having the value `N/A`), you can use 
 -----
 
 To view a table showing the indexing scripts' paths, calling formats, compatible products, and supported datastore origin types, run this command from the starting directory: `python3 utils/show/show.py show-idx-scr`.
-
->#### <a name="drone_data_indexing"></a> Drone Data Indexing
------
-
-
