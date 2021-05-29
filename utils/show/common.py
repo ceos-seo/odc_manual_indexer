@@ -17,23 +17,14 @@ sntnl2_l2a_product_type = 'Sentinel-2 Level 2A (Copernicus Format)'
 jers1_sar_hh_product_type = 'JERS-1 SAR (HH)'
 ## Copernicus Global Land Cover
 copernicus_glc_product_type = 'Copernicus Global Land Cover'
+## Black Marble Night Lights 
+black_marble_night_lights_product_type = 'Black Marble Night Lights'
+## WebODM DJI Mavic Mini
+webodm_mavicmini_product_type = 'WebODM DJI Mavic Mini'
 
 # File Path Variables #
-dataset_dir = 'datasets'
 
-## Landsat
-ls_c1_dir_container = 'Landsat/collection_1'
-ls_c1_dir = f'{dataset_dir}/{ls_c1_dir_container}'
-ls_c2_dir_container = 'Landsat/collection_2'
-ls_c2_dir = f'{dataset_dir}/{ls_c2_dir_container}'
-## Sentinel-1
-s1_dir_container = 'Sentinel-1'
-s1_dir = f'{dataset_dir}/{s1_dir_container}'
-## Sentinel-2
-s2_l2a_dir_container = 'Sentinel-2/L2A'
-s2_l2a_dir = f'{dataset_dir}/{s2_l2a_dir_container}'
-## Copernicus Global Land Cover
-copernicus_glc_dir_container = 'Copernicus/Land_Cover'
-copernicus_glc_dir = f'{dataset_dir}/{copernicus_glc_dir_container}'
+idx_scr_dir = 'index_scripts'
+prod_def_dir = 'prod_defs'
 
 # End File Path Variables #

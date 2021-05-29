@@ -19,8 +19,10 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
       - /Datacube/data:/Datacube/data
-      - ${DKR_CMP_CONTEXT}/datasets:/manual_indexer
-      - ${DKR_CMP_CONTEXT}/utils:/manual_indexer/utils
+    #   - ${DKR_CMP_CONTEXT}/datasets:/manual_indexer
+      - ${DKR_CMP_CONTEXT}/prod_defs:${WORKDIR}/prod_defs
+      - ${DKR_CMP_CONTEXT}/index_scripts:${WORKDIR}/index_scripts
+      - ${DKR_CMP_CONTEXT}/utils:${WORKDIR}/utils
   odc:
     image: postgres:10-alpine
     environment:

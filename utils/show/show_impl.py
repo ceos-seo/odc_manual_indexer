@@ -79,6 +79,9 @@ def show_indexing_impl(product_types=opt_list_default, products=opt_list_default
     # Create an indexing command column from information about an indexing script and datastore.
     def get_formatted_idx_cmd(idx_scr_df_col_pth_fmt, odc_ds_df_col_pth, 
                               idx_scr_df_col_sup_ds_origs, odc_ds_df_col_suffix):
+        print('odc_ds_df_col_pth:', odc_ds_df_col_pth)
+        print('idx_scr_df_col_sup_ds_origs:', idx_scr_df_col_sup_ds_origs)
+        print('odc_ds_df_col_suffix:', odc_ds_df_col_suffix)
         if not isinstance(odc_ds_df_col_pth, str) and np.isnan(odc_ds_df_col_pth):
             return '' # No dataset path. No indexing command.
         # 1. Determine datastore origin type (e.g. local, S3).
@@ -95,7 +98,7 @@ def show_indexing_impl(product_types=opt_list_default, products=opt_list_default
                         bucket = bucket_path_match.group(1)
                         bucket_path = bucket_path_match.group(2)
                 if pattern_name == 'file_path_pattern':
-                    scheme = 'file'
+                    scheme = 'local_file'
                     path = match.group(1)
                 break
         if match is None:
@@ -112,13 +115,19 @@ def show_indexing_impl(product_types=opt_list_default, products=opt_list_default
             idx_scr_df_col_pth_fmt = idx_scr_df_col_pth_fmt.replace(fmt_desc_s3_bkt, bucket)
             idx_scr_df_col_pth_fmt = idx_scr_df_col_pth_fmt.replace(fmt_desc_s3_pth, bucket_path)
             idx_scr_df_col_pth_fmt = idx_scr_df_col_pth_fmt.replace(fmt_desc_suffix, odc_ds_df_col_suffix)
+        # if scheme == 'local_file':
+            # idx_scr_df_col_pth_fmt = idx_scr_df_col_pth_fmt.replace(fmt_desc_local_path, )
+            # idx_scr_df_col_pth_fmt = idx_scr_df_col_pth_fmt.replace(fmt_desc_product_name, )
+            
         return idx_scr_df_col_pth_fmt
 
+    print('df:', df)
     df['IdxCmdFmt'] = \
         df.apply(lambda row: get_formatted_idx_cmd(row[idx_scr_df_col_pth_fmt], 
                                                    row[odc_ds_df_col_pth],
                                                    row[idx_scr_df_col_sup_ds_origs],
-                                                   row[odc_ds_df_col_suffix]), axis=1)
+                                                   row[odc_ds_df_col_suffix],
+                                                   row[prd_df_col_prd]), axis=1)
     cols_to_show = [prd_df_col_prd, 'IdxCmdFmt', odc_ds_df_col_pth]
     df = df[cols_to_show]
     # Rows with an empty `IdxCmdFmt` cell must be discarded unless `show_all_rows`.

@@ -1,0 +1,38 @@
+name: WebODM_MavicMini_RGBA
+description: WebODM DJI MavicMini (RGBA)
+metadata_type: eo
+
+metadata:
+  product:
+    name: WebODM_MavicMini_RGBA
+  platform:
+    code: DJI
+  product_type: MavicMini
+  format:
+    name: GeoTIFF
+
+storage:
+    crs: EPSG:4326
+    resolution:
+      longitude: 2.306486953632898e-07
+        #0.0399962
+      latitude: 1.7980355708770681e-07
+        #0.0399952
+
+measurements:
+  - name: 'red'
+    dtype: uint8
+    nodata: -1
+    units: '1'
+  - name: 'green'
+    dtype: uint8
+    nodata: -1
+    units: '1'
+  - name: 'blue'
+    dtype: uint8
+    nodata: -1
+    units: '1'
+  - name: 'alpha'
+    dtype: uint8
+    nodata: -1
+    units: '1'

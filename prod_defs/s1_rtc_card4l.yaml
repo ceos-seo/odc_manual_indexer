@@ -1,5 +1,5 @@
 name: s1_rtc_card4l
-description: Sentinel-1 RTC Cloud-Optimized GeoTIFFs
+description: Sentinel-1 RTC Cloud-Optimized GeoTIFFs CARD4L-compliant
 metadata_type: eo
 
 metadata:

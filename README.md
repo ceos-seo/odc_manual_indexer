@@ -1,6 +1,6 @@
 # ODC Manual Indexer
 
-This purpose of this repository is to provide convenient means of indexing data for an ODC installation.
+The purpose of this repository is to provide convenient means of indexing data for an [Open Data Cube](https://www.opendatacube.org/) installation.
 <br><br>
 
 ## Contents
@@ -16,6 +16,7 @@ This purpose of this repository is to provide convenient means of indexing data 
     * [Data Stores](#info_data)
     * [Indexing](#info_idx)
     * [Indexing Scripts](#info_idx_scr)
+    * [Drone Data Indexing](#drone_data_indexing)
 <br><br>
 
 ## <a name="starting"></a> Starting the Indexer
@@ -129,10 +130,19 @@ To view a table showing each datastore's path, description, compatible products,
 
 **To view a table showing the command calling format for each combination of product and compatible data store**, run this command from the starting directory: `python3 utils/show/show.py show-indexing`.
 
-If there is no indexing script for a given pairing of a product and a compatible data store (whether recorded in this repository or not), you should still be able to index that data store if it already has Datacube metadata YAML documents by using a command like `datacube dataset add <path-to-dataset-documents>`. For example, commonly you will have a directory containing directories of scenes - 1 directory per scene - with each containing a dataset document. If this dataset document is called `metadata.yaml`, then run this command to index the data: `datacube dataset add <data-store-root-path>/**/metadata.yaml` where `<data-store-root-path>` is the directory containing these scene directories.
+The `IdxCmdFmt` column shows the indexing command to use. You must prefix this with `python3`. For example, a `IdxCmdFmt` value of `index_scripts/idx_scr.py <arguments>` will be `python3 index_scripts/idx_scr.py <arguments>`. Some arguments like `<product-type>` will be known from the product definition.
+
+If there is no indexing script for a given pairing of a product and a compatible data store (whether recorded in this repository or not), you should still be able to index that data store if it already has Datacube metadata YAML documents by using a command like `datacube dataset add <path-to-dataset-documents>`. For example, commonly you will have a directory containing directories of scenes - 1 directory per scene - with each containing a dataset document. If this dataset document is called `metadata.yaml`, then run this command to index the data: `datacube dataset add <datastore-path>/**/metadata.yaml` where `<datastore-path>` is the directory containing scene directories.
+
+For rows with no path (the `DsPath` column having the value `N/A`), you can use the indexing command to index the path `<datastore-path>`, which is a directory containing scene directories.
 <br><br>
 
 >#### <a name="info_idx_scr"></a> Indexing Scripts
 -----
 
 To view a table showing the indexing scripts' paths, calling formats, compatible products, and supported datastore origin types, run this command from the starting directory: `python3 utils/show/show.py show-idx-scr`.
+
+>#### <a name="drone_data_indexing"></a> Drone Data Indexing
+-----
+
+
