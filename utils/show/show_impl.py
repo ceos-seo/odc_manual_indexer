@@ -59,8 +59,13 @@ def show_product_types_impl(show_all_rows=show_all_rows_default):
 def show_columns_impl(product_types=opt_list_default, products=opt_list_default, 
                       cols=opt_list_default, show_all_rows=show_all_rows_default):
     show_cols_df = inner_merged_df if not show_all_rows else outer_merged_df
+    # Rows with no dataset path must be discarded unless `show_all_rows`.
+    show_cols_df = show_cols_df[show_cols_df['DsPath'] != 'N/A'].reset_index(drop=True) if not show_all_rows else show_cols_df
+    # Select specified product types.
     show_cols_df = show_cols_df[show_cols_df[col_product_type].isin(product_types)] if len(product_types) > 0 else show_cols_df
+    # Select specified products.
     show_cols_df = show_cols_df[show_cols_df[prd_df_col_prd].isin(products)] if len(products) > 0 else show_cols_df
+    # Select specified columns.
     show_cols_df = show_cols_df[cols] if len(cols) > 0 else show_cols_df
     return show_cols_df.dropna(how='all') # drop rows will no data.
 
