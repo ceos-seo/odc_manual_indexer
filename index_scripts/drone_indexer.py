@@ -186,7 +186,6 @@ def iterate_datasets(path, product_name, config, unsafe):
     file_match_exprs_remaining = set(meas_to_file_match_exprs[meas] for meas in prod_meas_set)
     count = 0
     for root,dirs,files in os.walk(path):
-        print(f'path: {path}')
         if not dirs: # This is a lowest-level subdirectory.
             meas_to_file_paths = {}
             for file_str in files:
