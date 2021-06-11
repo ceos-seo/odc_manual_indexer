@@ -43,6 +43,9 @@ restart-no-build: down up-no-build
 push:
 	docker push ${PROD_OUT_IMG}
 
+pull:
+	docker pull ${PROD_OUT_IMG}
+
 build-and-push: build-tag push
 ## End Production ##
 
@@ -71,6 +74,9 @@ dev-build-tag: # -e TAG=<tag> OR -e IMG_VER=<version>
 
 dev-push:
 	docker push ${DEV_OUT_IMG}
+
+dev-pull:
+	docker pull ${DEV_OUT_IMG}
 
 build-and-push: build-tag push
 ## End Development ##
