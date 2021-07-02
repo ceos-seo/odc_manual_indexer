@@ -38,6 +38,10 @@ WORKDIR $WORKDIR
 ARG PYTHONPATH=${WORKDIR}
 ENV PYTHONPATH=${PYTHONPATH}
 
+# Install ODC-GEE.
+COPY odc_gee odc_gee
+RUN cd odc_gee; python3 setup.py build && python3 setup.py install
+
 ENV AWS_ACCESS_KEY_ID \
     AWS_SECRET_ACCESS_KEY
 ENTRYPOINT ["/build/native/entrypoint.sh"]

@@ -5,3 +5,4 @@ __pycache__
 **/*.h5:Zone.Identifier
 **/*.nc
 **/.env
+odc_gee/config

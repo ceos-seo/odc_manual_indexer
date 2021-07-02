@@ -415,7 +415,6 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
                         while queue.qsize() > 100:
                             sleep(1)
                         count += 1
-                        print(count)
                         queue.put(obj.key)
                         success_file.write(f'{obj.key}')
                     else:
