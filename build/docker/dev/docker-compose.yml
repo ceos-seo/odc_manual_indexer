@@ -8,7 +8,6 @@ services:
       dockerfile: build/docker/dev/Dockerfile
       args:
         WORKDIR: ${WORKDIR}
-    # command: "tail -f /dev/null"
     environment:
       - ODC_DB_HOSTNAME=odc
       - ODC_DB_DATABASE=${ODC_DB_DATABASE}
@@ -18,7 +17,6 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
     volumes:
-    #   - ${DKR_CMP_CONTEXT}/datasets:/manual_indexer
       - ${DKR_CMP_CONTEXT}/prod_defs:${WORKDIR}/prod_defs
       - ${DKR_CMP_CONTEXT}/index_scripts:${WORKDIR}/index_scripts
       - ${DKR_CMP_CONTEXT}/utils:${WORKDIR}/utils

@@ -3,8 +3,8 @@ description: Landsat 7 Collection 1 Level 2 Surface Reflectance Tier 2 from GEE 
 metadata_type: eo3
 
 metadata:
-  platform:
-    code: LANDSAT_7
+  product:
+    name: ls7_l2_c1_t2_google
   properties:
     eo:instrument: null
     eo:platform: null
