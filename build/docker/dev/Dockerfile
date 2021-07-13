@@ -32,9 +32,11 @@ COPY build/native/odc_conf.sh native/odc_conf.sh
 COPY build/native/entrypoint.sh native/entrypoint.sh
 RUN chmod 777 -R ${BUILD_DIR}
 
-ARG WORKDIR=/manual_indexer
+ARG WORKDIR
 ENV WORKDIR=${WORKDIR}
 WORKDIR $WORKDIR
+ARG PYTHONPATH=${WORKDIR}
+ENV PYTHONPATH=${PYTHONPATH}
 
 ENV AWS_ACCESS_KEY_ID \
     AWS_SECRET_ACCESS_KEY

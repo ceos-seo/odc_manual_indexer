@@ -493,7 +493,7 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
     # Determine the path-rows to load data for.
     import sys
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    from tile_shapefile_formatting import path_row_geojson_to_min_max_xy_fmt
+    from utils.tile_shapefile_formatting import path_row_geojson_to_min_max_xy_fmt
     path_row_data = path_row_geojson_to_min_max_xy_fmt()
     path_rows_to_index = (lat1 < path_row_data.max_y) & (path_row_data.min_y < lat2) & \
                          (lon1 < path_row_data.max_x) & (path_row_data.min_x < lon2)

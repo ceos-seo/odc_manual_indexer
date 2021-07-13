@@ -1,4 +1,7 @@
+import pandas as pd
+
 from common import *
+from product import *
 
 # Columns (remote data stores):
 # Define columns as vars for autocomplete (convenient, avoids typos).
@@ -15,48 +18,48 @@ odc_ds_df = pd.DataFrame(
 ## Landsat
 ['s3://deafrica-data/usgs/c1/l5',
  'Landsat 5 data for Africa (from GA - minimize queries)', 
- ['ls5_usgs_sr_scene'],
+ [ls5_c1_l2_prod_name],
   '.xml'],
 ['s3://deafrica-data/usgs/c1/l7',
  'Landsat 7 data for Africa (from GA - minimize queries)', 
- ['ls7_usgs_sr_scene'],
+ [ls7_c1_l2_prod_name],
   '.xml'],
 ['s3://deafrica-data/usgs/c1/l8',
  'Landsat 8 data for Africa (from GA - minimize queries)', 
- ['ls8_usgs_sr_scene'],
+ [ls8_c1_l2_prod_name],
  '.xml'],
 ['s3://usgs-landsat/collection02/level-2/standard/tm',
  'USGS-hosted Landsat 5 C2 L2 Data (World, Requester Pays)',
- ['ls5_l2_c2'],
+ [ls5_c2_l2_prod_name],
  'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
 ['s3://usgs-landsat/collection02/level-2/standard/etm',
  'USGS-hosted Landsat 7 C2 L2 Data (World, Requester Pays)',
- ['ls7_l2_c2'],
+ [ls7_c2_l2_prod_name],
  'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
 ['s3://usgs-landsat/collection02/level-2/standard/oli-tirs',
  'USGS-hosted Landsat 8 C2 L2 Data (World, Requester Pays)',
- ['ls8_l2_c2'],
+ [ls8_c2_l2_prod_name],
  'MTL.xml'], # TODO: This data store is also STAC-compliant (`[...]_stac.json`).
 ## Sentinel-1
 ### Sentinel-1 RTC eu-central-1
 ['s3://sh.s1-card4l.eu-central-1.nasa/order_2021-03-17T15:13:58Z/s1_rtc',
  'Sentinel-1 RTC Cloud-Optimized GeoTIFFs', 
- ['s1_rtc_card4l'],
+ [s1_rtc_card4l_prod_name],
  'metadata.json'],
 ### Sentinel-1 RTC us-east-1
  ['s3://va-s3-requesterpays/order_2021-03-17T15:13:58Z/s1_rtc',
   'Sentinel-1 RTC Cloud-Optimized GeoTIFFs', 
- ['s1_rtc_card4l'],
+ [s1_rtc_card4l_prod_name],
  'metadata.json'],
 ## Sentinel-2
 ['s3://sentinel-cogs/sentinel-s2-l2a-cogs',
  'Sentinel-2 L2A Cloud-Optimized GeoTIFFs', 
- ['s2_l2a_aws_cog'],
+ [s2_l2a_aws_cog_prod_name],
  'L2A.json'],
 ## Copernicus Global Land Cover
 ['s3://vito.landcover.global/v3.0.1',
  'Copernicus annual Global Land Cover GeoTIFFs', 
- ['copernicus_lc100'],
+ [copernicus_lc100_prod_name],
  ''],
  ])
 

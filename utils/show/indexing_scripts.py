@@ -1,6 +1,7 @@
 from common import *
+from product import *
 
-# Columns (indexing scripts) #
+## Columns (indexing scripts) ##
 # Define columns as vars for autocomplete (convenient, avoids typos).
 idx_scr_df_col_pth_fmt = 'IdxScrPathFormat'
 idx_scr_df_col_origin = 'IdxScrOrigin'
@@ -8,115 +9,123 @@ idx_scr_df_col_prds = 'IdxScrProds'
 idx_scr_df_col_sup_ds_origs = 'IdxScrSupDsOrigins'
 idx_scr_cols = [idx_scr_df_col_pth_fmt, idx_scr_df_col_origin,
                 idx_scr_df_col_prds, idx_scr_df_col_sup_ds_origs]
-# End Columns #
+## End Columns ##
 
-# Path-Format Parameter Descriptions #
+## Path-Format Parameter Descriptions ##
+## General
+fmt_desc_product_name = '<product-name>' 
+fmt_desc_product_type = '<product-type>'
+fmt_desc_platform_code = '<platform-code>'
+fmt_desc_suffix = '<string (The file suffix of dataset metadata documents)>'
+### Local Path
+fmt_desc_local_path = '<datastore-path>'
+### S3
 fmt_desc_s3_bkt = '<bucket (S3 bucket name)>'
 fmt_desc_s3_pth = '<path (path in bucket in which to recursively search for Data Cube datasets to index)>'
-fmt_desc_suffix = '<string (The file suffix of dataset metadata documents)>'
-# End Path-Format Parameter Descriptions #
+## End Path-Format Parameter Descriptions ##
 
-# File Path Variables #
-idx_scr_dir_name = 'index_scripts'
+## File Path Variables ##
 
-# Path in the container vs path in the repo.
+### Script Paths ###
 ## Landsat
-ls_c1_idx_scr_dir_container = f'{ls_c1_dir_container}/{idx_scr_dir_name}'
-ls_c1_idx_scr_dir = f'{ls_c1_dir}/{idx_scr_dir_name}'
-ls_c2_idx_scr_dir_container = f'{ls_c2_dir_container}/{idx_scr_dir_name}'
-ls_c2_idx_scr_dir = f'{ls_c2_dir}/{idx_scr_dir_name}'
+landsat_idx_scr_dir = f'{idx_scr_dir}/Landsat'
+### Landsat Collection 1
+landsat_c1_prod_dir = f'{landsat_idx_scr_dir}/collection_1'
+ls5_c1_l2_idx_scr_path = f'{landsat_c1_prod_dir}/ls5_usgs_sr_scene.py'
+ls7_c1_l2_idx_scr_path = f'{landsat_c1_prod_dir}/ls7_usgs_sr_scene.py'
+ls8_c1_l2_idx_scr_path = f'{landsat_c1_prod_dir}/ls8_usgs_sr_scene.py'
+### Landsat Collection 2
+landsat_c2_idx_scr_dir = f'{landsat_idx_scr_dir}/collection_2'
+ls5_c2_l2_idx_scr_path = f'{landsat_c2_idx_scr_dir}/ls5_l2_c2.py'
+ls7_c2_l2_idx_scr_path = f'{landsat_c2_idx_scr_dir}/ls7_l2_c2.py'
+ls8_c2_l2_idx_scr_path = f'{landsat_c2_idx_scr_dir}/ls8_l2_c2.py'
 ## Sentinel-1
-s1_idx_scr_dir_container = f'{s1_dir_container}/{idx_scr_dir_name}'
-s1_idx_scr_dir = f'{s1_dir}/{idx_scr_dir_name}'
+sentinel_1_idx_scr_dir = f'{idx_scr_dir}/Sentinel-1'
+s1_idx_scr_path = f'{sentinel_1_idx_scr_dir}/s1_rtc_card4l.py'
 ## Sentinel-2
-s2_l2a_idx_scr_dir_container = f'{s2_l2a_dir_container}/{idx_scr_dir_name}'
-s2_l2a_idx_scr_dir = f'{s2_l2a_dir}/{idx_scr_dir_name}'
+sentinel_2_idx_scr_dir = f'{idx_scr_dir}/Sentinel-2'
+s2_l2a_s3_cog_idx_scr_path = f'{sentinel_2_idx_scr_dir}/s2_l2a_aws_cog.py'
 ## Copernicus Global Land Cover
-ls_c1_idx_scr_dir_container = f'{copernicus_glc_dir_container}/{idx_scr_dir_name}'
-copernicus_glc_idx_scr_dir = f'{copernicus_glc_dir}/{idx_scr_dir_name}'
+copernicus_glc_idx_scr_path = f'{idx_scr_dir}/copernicus_lc100.py'
+## Black Marble Night Lights
+black_marble_night_lights_idx_scr_path = f'{idx_scr_dir}/black_marble_night_lights.py'
+### End Script Paths ###
 
-# Script names
-## Landsat
-ls5_c1_l2_idx_scr_name = 'ls5_public_bucket.py'
-deafrica_data_extents = '--lat1=-36 --lat2=38 --lon1=-18 --lon2=52'
-ls7_c1_l2_idx_scr_name = 'ls7_public_bucket.py'
-ls8_c1_l2_idx_scr_name = 'ls8_public_bucket.py'
-ls5_c2_l2_idx_scr_name = 'ls5_l2_c2_public_bucket.py'
-ls7_c2_l2_idx_scr_name = 'ls7_l2_c2_public_bucket.py'
-ls8_c2_l2_idx_scr_name = 'ls8_l2_c2_public_bucket.py'
-## Sentinel-1
-s1_idx_scr_name = 's1_rtc_card4l.py'
+## End File Path Variables ##
+
+## Data Extents ##
+
 s1_data_extents = '--lat1=35 --lat2=39 --lon1=-85 --lon2=-75 --start_date=2017-01-01 --end_date=2019-12-31'
-## Sentinel-2
-s2_l2a_s3_cog_idx_scr_name = 's2_l2a_aws_cog.py'
-## Copernicus Global Land Cover
-copernicus_glc_idx_scr_name = 'indexer.py'
+deafrica_data_extents = '--lat1=-36 --lat2=38 --lon1=-18 --lon2=52'
 
-
-# End File Path Variables #
+## End Data Extents ##
 
 idx_scr_df = pd.DataFrame(
     columns = idx_scr_cols,
     data = [
 ## Landsat
 [# Path-Format
-f'{ls_c1_idx_scr_dir}/{ls5_c1_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
+f'{ls5_c1_l2_idx_scr_path} {fmt_desc_s3_bkt} '\
  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix} {deafrica_data_extents}',
  # Origin
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
  # Products
- ['ls5_usgs_sr_scene'],
+ [ls5_c1_l2_prod_name],
  # Supported dataset origin types.
  ['s3']],
-[f'{ls_c1_idx_scr_dir}/{ls7_c1_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
- f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix} {deafrica_data_extents}',
- # Origin
- 'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
- # Products
- ['ls7_usgs_sr_scene'],
- # Supported dataset origin types.
- ['s3']],
-[f'{ls_c1_idx_scr_dir}/{ls8_c1_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
+[f'{ls7_c1_l2_idx_scr_path} {fmt_desc_s3_bkt} '\
  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix} {deafrica_data_extents}',
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
- ['ls8_usgs_sr_scene'],
+ [ls7_c1_l2_prod_name],
  ['s3']],
-[f'{ls_c2_idx_scr_dir}/{ls5_c2_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
+[f'{ls8_c1_l2_idx_scr_path} {fmt_desc_s3_bkt} '\
+ f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix} {deafrica_data_extents}',
+ 'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
+ [ls8_c1_l2_prod_name],
+ ['s3']],
+[f'{ls5_c2_l2_idx_scr_path} {fmt_desc_s3_bkt} '\
  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
- ['ls5_l2_c2'],
+ [ls5_c2_l2_prod_name],
  ['s3']],
-[f'{ls_c2_idx_scr_dir}/{ls7_c2_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
+[f'{ls7_c2_l2_idx_scr_path} {fmt_desc_s3_bkt} '\
  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
  'https://github.com/opendatacube/datacube-dataset-config/blob/master/old-prep-scripts/ls_public_bucket.py',
- ['ls7_l2_c2'],
+ [ls7_c2_l2_prod_name],
  ['s3']],
-[f'{ls_c2_idx_scr_dir}/{ls8_c2_l2_idx_scr_name} {fmt_desc_s3_bkt} '\
+[f'{ls8_c2_l2_idx_scr_path} {fmt_desc_s3_bkt} '\
  f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
- f'{ls_c1_idx_scr_dir}/{ls8_c1_l2_idx_scr_name}',
- ['ls8_l2_c2'],
+ f'{ls8_c1_l2_idx_scr_path}',
+ [ls8_c2_l2_prod_name],
  ['s3']],
 ## Sentinel-1
-[f'{s1_idx_scr_dir}/{s1_idx_scr_name} {fmt_desc_s3_bkt} '\
+[f'{s1_idx_scr_path} {fmt_desc_s3_bkt} '\
   f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix} {s1_data_extents}',
-  f'{s1_idx_scr_dir}/{s1_idx_scr_name}',
-  ['s1_rtc_card4l'],
+  f'{s1_idx_scr_path}',
+  [s1_rtc_card4l_prod_name],
   ['s3']],
 ## Sentinel-2
-[f'{s2_l2a_idx_scr_dir}/{s2_l2a_s3_cog_idx_scr_name} {fmt_desc_s3_bkt} '\
+[f'{s2_l2a_s3_cog_idx_scr_path} {fmt_desc_s3_bkt} '\
   f'-p {fmt_desc_s3_pth} --suffix={fmt_desc_suffix}',
   'N/A',
-  ['s2_l2a_aws_cog'],
+  [s2_l2a_aws_cog_prod_name],
   ['s3']],
 ## JERS-1
 # TODO: Create a JERS-1 indexing script.
 ## Copernicus Global Land Cover
-[f'{copernicus_glc_idx_scr_dir}/{copernicus_glc_idx_scr_name} {fmt_desc_s3_bkt} '\
+
+[f'{copernicus_glc_idx_scr_path} {fmt_desc_s3_bkt} '\
   f'-p {fmt_desc_s3_pth}',
   'N/A',
-  ['copernicus_lc100'],
+  [copernicus_lc100_prod_name],
   ['s3']],
   # e.g. Copernicus/Land_Cover/indexer.py vito.landcover.global --prefix v3.0.1 --lat1 40 --lat2 40 --lon1 -100 --lon2 -80
+## Black Marble Night Lights
+[f'{black_marble_night_lights_idx_scr_path} {fmt_desc_s3_bkt} '\
+  f'-p {fmt_desc_s3_pth}',
+  'N/A',
+  [black_marble_night_lights_prod_name],
+  ['s3']],
 ])
 
 

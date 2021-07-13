@@ -28,7 +28,7 @@ build-tag: # -e TAG=<tag> OR -e IMG_VER=<version>
 	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) build)
 
 down: 
-	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) down)
+	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) down --remove-orphans)
 
 ssh:
 	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) exec manual bash)
@@ -43,6 +43,9 @@ restart-no-build: down up-no-build
 push:
 	docker push ${PROD_OUT_IMG}
 
+pull:
+	docker pull ${PROD_OUT_IMG}
+
 build-and-push: build-tag push
 ## End Production ##
 
@@ -54,7 +57,7 @@ dev-up-no-build:
 	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) up -d)
 
 dev-down: 
-	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) down)
+	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) down --remove-orphans)
 
 dev-ssh:
 	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) exec manual bash)
@@ -71,6 +74,9 @@ dev-build-tag: # -e TAG=<tag> OR -e IMG_VER=<version>
 
 dev-push:
 	docker push ${DEV_OUT_IMG}
+
+dev-pull:
+	docker pull ${DEV_OUT_IMG}
 
 build-and-push: build-tag push
 ## End Development ##

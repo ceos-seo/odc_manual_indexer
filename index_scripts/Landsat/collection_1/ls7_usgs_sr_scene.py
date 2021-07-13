@@ -276,7 +276,7 @@ def make_xml_doc(xmlstring, bucket_name, object_key):
     try:
         docdict = {
             'id': str(uuid.uuid5(uuid.NAMESPACE_URL, get_s3_url(bucket_name, object_key))),
-            'product': {'name': 'ls5_usgs_sr_scene'},
+            'product': {'name': 'ls7_usgs_sr_scene'},
             # 'cloud_cover': cloud_cover,
             # 'fill': fill,
             'processing_level': str(level),
@@ -494,7 +494,7 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
     # Determine the path-rows to load data for.
     import sys
     sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-    from tile_shapefile_formatting import path_row_geojson_to_min_max_xy_fmt
+    from utils.tile_shapefile_formatting import path_row_geojson_to_min_max_xy_fmt
     path_row_data = path_row_geojson_to_min_max_xy_fmt()
     path_rows_to_index = (lat1 < path_row_data.max_y) & (path_row_data.min_y < lat2) & \
                          (lon1 < path_row_data.max_x) & (path_row_data.min_x < lon2)
@@ -542,8 +542,8 @@ def iterate_datasets(bucket_name, config, prefix, suffix, start_date, end_date, 
 @click.option('--sources_policy', default="verify", help="verify, ensure, skip")
 def main(bucket_name, config, prefix, suffix, start_date, end_date, lat1, lat2, lon1, lon2, archive, unsafe, sources_policy):
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s', level=logging.INFO)
-    start_date = "1984-03-01" if start_date is None else start_date
-    end_date = "2013-06-05" if end_date is None else end_date
+    start_date = "1999-04-15" if start_date is None else start_date
+    end_date = "2029-12-31" if end_date is None else end_date
     lat1 = -90 if lat1 is None else float(lat1)
     lat2 = 90 if lat2 is None else float(lat2)
     lon1 = -180 if lon1 is None else float(lon1)

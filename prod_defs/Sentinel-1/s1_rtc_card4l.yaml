@@ -1,15 +1,15 @@
 name: s1_rtc_card4l
-description: Sentinel-1 RTC Cloud-Optimized GeoTIFFs
+description: Sentinel-1 RTC Cloud-Optimized GeoTIFFs CARD4L-compliant
 metadata_type: eo
 
 metadata:
     platform:
-        code: SENTINEL_1
+      code: SENTINEL_1
     instrument:
-        name: CSAR
+      name: CSAR
     processing_level: RTC
     format:
-        name: GeoTiff
+      name: GeoTiff
 
 storage:
     crs: EPSG:4326

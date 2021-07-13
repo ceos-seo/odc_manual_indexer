@@ -35,11 +35,14 @@ RUN chmod 777 -R ${BUILD_DIR}
 ARG WORKDIR=/manual_indexer
 ENV WORKDIR=${WORKDIR}
 WORKDIR $WORKDIR
+ARG PYTHONPATH=${WORKDIR}
+ENV PYTHONPATH=${PYTHONPATH}
 
 ENV AWS_ACCESS_KEY_ID \
     AWS_SECRET_ACCESS_KEY
 ENTRYPOINT ["/build/native/entrypoint.sh"]
 CMD ["tail", "-f", "/dev/null"]
 
-COPY datasets/ .
+COPY index_scripts/ index_scripts/
+COPY prod_defs/ prod_defs/
 COPY utils/ utils/
