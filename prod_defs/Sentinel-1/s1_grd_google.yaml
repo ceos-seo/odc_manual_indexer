@@ -1,0 +1,44 @@
+name: s1_grd_google
+description: Sentinel-1 GRD from Google Earth Engine
+metadata_type: eo3
+
+metadata:
+  product:
+    name: s1_grd_google
+  properties:
+    eo:instrument: null
+    eo:platform: null
+    gee:asset: COPERNICUS/S1_GRD
+
+storage:
+  crs: EPSG:4326
+  resolution:
+    longitude: 0.00009009
+    latitude: -0.00009009
+
+measurements:
+  - name: VV
+    aliases: [vv]
+    dtype: float64
+    units: ""
+    nodata: -9999
+  - name: VH
+    aliases: [vh]
+    dtype: float64
+    units: ""
+    nodata: -9999
+  - name: HH
+    aliases: [hh]
+    dtype: float64
+    units: ""
+    nodata: -9999
+  - name: HV
+    aliases: [hv]
+    dtype: float64
+    units: ""
+    nodata: -9999
+  - name: angle
+    aliases: [approximate_incidence_angle_from_ellipsoid, incidence_angle]
+    dtype: float64
+    units: Degrees
+    nodata: -9999
