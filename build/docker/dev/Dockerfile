@@ -6,12 +6,14 @@ WORKDIR ${BUILD_DIR}
 
 # Install CA certificates (partly for S3 access).
 ENV CURL_CA_BUNDLE="/etc/ssl/certs/ca-certificates.crt"
-RUN apt-get update && apt-get install ca-certificates -y
+RUN apt-get update && apt-get install ca-certificates -y && \
+    rm -rf /var/lib/apt/lists/*
 RUN echo "export CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt" >> ~/.profile
 
 # Install some system utilities like wget and curl.
-RUN DEBIAN_FRONTEND=noninteractive apt-get install \
-    wget curl unzip -y < /dev/null
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install \
+    wget curl unzip -y < /dev/null && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install the AWS CLI.
 RUN curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
