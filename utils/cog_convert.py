@@ -67,7 +67,6 @@ def get_geometry(bbox, from_crs):
 
 def convert_to_cog(raster, validate=True):
     out_path = str(raster.with_suffix(".tif")).replace(" ", "_")
-    # print(f'convert_to_cog(): Converting {raster} to {out_path}')
     assert raster != out_path, "Can't convert to files of the same name"
     cog_translate(raster, out_path, output_profile, quiet=True)
     if validate:
@@ -126,20 +125,13 @@ def process_rasters(rasters):
     def raster_to_cog_if_specified(raster):
         try:
             # if cog_convert:
+            #     raster = convert_to_cog(raster)
             raster = convert_to_cog(raster)
             # create_stac(raster, platform, band_name, default_date)
         except Exception as e:
             print(f"Failed to process {raster} with exception {e}")
 
     Parallel(n_jobs=-1)(delayed(raster_to_cog_if_specified)(raster) for raster in tqdm(rasters))
-    
-    # for raster in rasters:
-    #     try:
-    #         if cog_convert:
-    #             raster = convert_to_cog(raster)
-    #         # create_stac(raster, platform, band_name, default_date)
-    #     except Exception as e:
-    #         print(f"Failed to process {raster} with exception {e}")
 
 
 @click.command("create-odc-stac")
