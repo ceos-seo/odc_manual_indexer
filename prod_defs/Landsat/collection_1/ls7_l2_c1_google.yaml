@@ -1,19 +1,14 @@
-name: ls8_l2_c1_t1_google
-description: Landsat 8 Collection 1 Level 2 Surface Reflectance Tier 1 from GEE (Google Earth Engine). 30m UTM based projection.
+name: ls7_l2_c1_google
+description: Landsat 7 Collection 2 Level 2 Surface Reflectance LaSRC from GEE (Google Earth Engine). 30m UTM based projection.
 metadata_type: eo3
 
 metadata:
-<<<<<<< HEAD
-  product:
-    name: ls8_l2_c1_t1_google
-=======
   platform:
-    code: LANDSAT_8
->>>>>>> a5c0805b7dbc7914e13ddc58375ede5f863f5b0b
+    code: LANDSAT_7
   properties:
     eo:instrument: null
     eo:platform: null
-    gee:asset: LANDSAT/LC08/C01/T1_SR
+    gee:asset: LANDSAT/LE07/C01/T1_SR
 
 storage:
   crs: EPSG:4326
@@ -23,53 +18,48 @@ storage:
 
 measurements:
   - name: B1
-    aliases: [coastal_aerosol, band_1]
+    aliases: [blue, band_1]
     dtype: int16
     nodata: -32768
     units: ""
   - name: B2
-    aliases: [blue, band_2]
+    aliases: [green, band_2]
     dtype: int16
     nodata: -32768
     units: ""
   - name: B3
-    aliases: [green, band_3]
+    aliases: [red, band_3]
     dtype: int16
     nodata: -32768
     units: ""
   - name: B4
-    aliases: [red, band_4]
+    aliases: [nir, band_4]
     dtype: int16
     nodata: -32768
     units: ""
   - name: B5
-    aliases: [nir, band_5]
+    aliases: [swir1, band_5]
     dtype: int16
     nodata: -32768
     units: ""
   - name: B6
-    aliases: [swir1, band_6]
+    aliases: [tirs, band_6]
     dtype: int16
     nodata: -32768
-    units: ""
+    units: Kelvin
   - name: B7
     aliases: [swir2, band_7]
     dtype: int16
     nodata: -32768
     units: ""
-  - name: B10
-    aliases: [brt_temp_1, brightness_temperature_1]
+  - name: sr_atmos_opacity
+    aliases: [atmos_op]
     dtype: int16
     nodata: -32768
-    units: Kelvin
-  - name: B11
-    aliases: [brt_temp_2, brightness_temperature_2]
-    dtype: int16
-    nodata: -32768
-    units: Kelvin
+    units: ""
   - name: pixel_qa
     dtype: uint16
-    nodata: 1
+    nodata: 0
     units: ""
     flags_definition:
       pixel_qa:
@@ -84,8 +74,8 @@ measurements:
           32: Cloud
           64: Cloud Confidence Low Bit
           128: Cloud Confidence High Bit
-          256: Cirrus Confidence Low Bit
-          512: Cirrus Confidence High Bit
+          256: Unused
+          512: Unused
           1024: Unused
           2048: Unused
           4096: Unused
@@ -141,27 +131,9 @@ measurements:
         values:
           0: no_occlusion
           1: occlusion
-  - name: sr_aerosol
-    aliases: [sr_aerosol_qa, aerosol_qa, aerosol]
+  - name: radsat_qa
     dtype: uint8
     nodata: 0
-    units: ""
-    flags_definition:
-      aerosol_qa:
-        bits: [0, 1, 2, 3, 4, 5, 6, 7]
-        description: Aerosol QA
-        values:
-          1: Data Fill Flag
-          2: Aerosol Retrieval - Valid
-          4: Aerosol Retrieval - Interpolated
-          8: Water Pixel
-          16: Water Aerosol Retrieval Failed
-          32: Neighbor of Failed Aerosol Retrieval
-          64: Aerosol Content Content Low Bit
-          128: Aerosol Content Content High Bit
-  - name: radsat_qa
-    dtype: uint16
-    nodata: 1
     units: ""
     flags_definition:
       radsat_qa:
@@ -176,7 +148,21 @@ measurements:
           32: Band 5 Data Saturation Flag
           64: Band 6 Data Saturation Flag
           128: Band 7 Data Saturation Flag
-          256: Unused
-          512: Band 9 Data Saturation Flag
-          1024: Band 10 Data Saturation Flag
-          2048: Band 11 Data Saturation Flag
+  - name: sr_cloud_qa
+    aliases: [cloud_qa]
+    dtype: uint8
+    nodata: 0
+    units: ""
+    flags_definition:
+      cloud_qa:
+        bits: [0, 1, 2, 3, 4, 5, 6, 7]
+        description: SR Cloud QA
+        values:
+          1: Dark Dense Vegetation (DDV)
+          2: Cloud
+          4: Cloud shadow
+          8: Adjacent to cloud
+          16: Snow
+          32: Land/Water
+          64: Unused
+          128: Unused
