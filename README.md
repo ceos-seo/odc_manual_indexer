@@ -16,7 +16,7 @@ The purpose of this repository is to provide convenient means of indexing data f
     * [Data Stores](#info_data)
     * [Indexing](#info_idx)
     * [Indexing Scripts](#info_idx_scr)
-* [Converting GeoTIFFs to Cloud Optimized GeoTIFFs (COGs)](#convert_to_cogs)
+* [Converting GeoTIFFs to Cloud Optimized GeoTIFFs (COGs) and Generating STAC Metadata Files](#data_to_cog_stac)
 <br><br>
 
 ## <a name="starting"></a> Starting the Indexer
@@ -142,9 +142,9 @@ For rows with no path (the `DsPath` column having the value `N/A`), you can use 
 
 To view a table showing the indexing scripts' paths, calling formats, compatible products, and supported datastore origin types, run this command from the starting directory: `python3 utils/show/show.py show-idx-scr`.
 
-## <a name="convert_to_cogs"></a> Converting GeoTIFFs to Cloud Optimized GeoTIFFs (COGs)
+## <a name="data_to_cog_stac"></a> Converting GeoTIFFs to Cloud Optimized GeoTIFFs (COGs) and Generating STAC Metadata Files
 -----
 
-To convert a directory of GeoTIFFs to [Cloud Optimized GeoTIFFs (COGS)](https://www.cogeo.org/) - usually to then host somewhere accessible such as AWS S3 - run `python3 utils/cog_convert.py <path>`, where `<path>` is the path to the directory of GeoTIFFs in the container. 
+To convert a directory of GeoTIFFs to [Cloud Optimized GeoTIFFs (COGS)](https://www.cogeo.org/) - usually to then host somewhere accessible such as AWS S3 - run `python3 utils/data_prep/data_to_cog_stac.py <product_name> <path>`, where `<product_name>` is the name of the ODC product the data maps to (the product definition must be somewhere in the `index_scripts` directory) and `<path>` is the path to the directory of GeoTIFFs in the container.
 
-You can perform this operation on a directory on the host machine by adding a volume in the `volumes` section of the `manual` `service` in the `docker-compose.yml` file for the selected environment (`dev`/`prod`). Here is an example entry in the `volumes` section: `- /mnt/c/Users/username/Data/tiff_dir:${WORKDIR}/tiff_dir` - this will create a directory called `tiff_dir` in the starting directory of the container which maps to the host path on the left side of the colon character (`:`). You can then run `python3 utils/cog_convert.py ./tiff_dir` in the container to convert the files to COGs.
+You can perform this operation on a directory on the host machine by adding a volume in the `volumes` section of the `manual` `service` in the `docker-compose.yml` file for the selected environment (`dev`/`prod`). Here is an example entry in the `volumes` section: `- /mnt/c/Users/username/Data/tiff_dir:${WORKDIR}/tiff_dir` - this will create a directory called `tiff_dir` in the starting directory of the container which maps to the host path on the left side of the colon character (`:`). You can then run `python3 utils/data_prep/data_to_cog_stac.py <product_name> ./tiff_dir` in the container to convert the files to COGs.

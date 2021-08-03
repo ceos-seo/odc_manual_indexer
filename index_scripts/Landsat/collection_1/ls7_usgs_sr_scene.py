@@ -27,7 +27,7 @@ from queue import Empty
 
 import sys
 sys.path.append(os.environ.get('WORKDIR'))
-from utils.indexing_utils import get_coords, get_s3_url
+from utils.index.indexing_utils import get_coords, get_s3_url
 
 GUARDIAN = "GUARDIAN_QUEUE_EMPTY"
 AWS_PDS_TXT_SUFFIX = "MTL.txt"
@@ -151,13 +151,7 @@ def get_band_filenames(xmldoc):
     return (band_dict)
 
 
-def get_geo_ref_points(info):
-    return {
-        'ul': {'x': info['CORNER_UL_PROJECTION_X_PRODUCT'], 'y': info['CORNER_UL_PROJECTION_Y_PRODUCT']},
-        'ur': {'x': info['CORNER_UR_PROJECTION_X_PRODUCT'], 'y': info['CORNER_UR_PROJECTION_Y_PRODUCT']},
-        'll': {'x': info['CORNER_LL_PROJECTION_X_PRODUCT'], 'y': info['CORNER_LL_PROJECTION_Y_PRODUCT']},
-        'lr': {'x': info['CORNER_LR_PROJECTION_X_PRODUCT'], 'y': info['CORNER_LR_PROJECTION_Y_PRODUCT']},
-    }
+from utils.get_geo_ref_points import get_geo_ref_points_info_landsat_c1_l2
 
 def satellite_ref(sat):
     """
@@ -335,7 +329,7 @@ def make_metadata_doc(mtl_data, bucket_name, object_key):
     label = mtl_metadata_info['LANDSAT_SCENE_ID']
     spatial_ref = osr.SpatialReference()
     spatial_ref.ImportFromEPSG(cs_code)
-    geo_ref_points = get_geo_ref_points(mtl_product_info)
+    geo_ref_points = get_geo_ref_points_info_landsat_c1_l2(mtl_product_info)
     coordinates = get_coords(geo_ref_points, spatial_ref)
     bands = satellite_ref(satellite)
     doc = {

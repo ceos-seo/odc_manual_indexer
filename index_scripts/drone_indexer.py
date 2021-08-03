@@ -19,18 +19,7 @@ from queue import Empty
 
 GUARDIAN = "GUARDIAN_QUEUE_EMPTY"
 
-def get_geo_ref_points(tif_path):
-    ds = rasterio.open(tif_path)
-    minx = ds.bounds.left
-    maxx = ds.bounds.right
-    miny = ds.bounds.bottom
-    maxy = ds.bounds.top
-    return {
-        'ul': {'x': minx, 'y': maxy}, 
-        'ur': {'x': maxx, 'y': maxy},
-        'll': {'x': minx, 'y': miny}, 
-        'lr': {'x': maxx, 'y': miny}
-    }
+from utils.get_geo_ref_points import get_geo_ref_points_tiff_path
 
 def get_res(geo_ref_points, tif_path, src_crs):
     minx = geo_ref_points['ul']['x']
@@ -57,10 +46,10 @@ def make_metadata_doc(path, meas_to_file_paths, product_name, product_type, plat
     
     # Select one of the files to get geospatial reference points for.
     first_meas_filepath = list(meas_to_file_paths.values())[0]
-    geo_ref_points = get_geo_ref_points(first_meas_filepath)
+    geo_ref_points = get_geo_ref_points_tiff_path(first_meas_filepath)
     src_crs = 'EPSG:' + str(rasterio.open(first_meas_filepath).crs.to_epsg())
 
-    from utils.indexing_utils import prod_type_meas_file_layers
+    from utils.index.indexing_utils import prod_type_meas_file_layers
     meas_file_layers = prod_type_meas_file_layers[product_type]
     
     doc_bands = {}
@@ -177,7 +166,7 @@ def iterate_datasets(path, product_name, config, unsafe):
         proc.start()
 
     # Search the lowest-level directories with 'DEM-clip.tif' and 'Ortho-clip.tif' files.
-    from utils.indexing_utils import prod_type_file_match_exprs, prod_type_meas_to_file_match_exprs
+    from utils.index.indexing_utils import prod_type_file_match_exprs, prod_type_meas_to_file_match_exprs
     from collections import ChainMap
     file_match_exprs_to_meas = prod_type_file_match_exprs[product_type]
     meas_to_file_match_exprs = \
