@@ -61,13 +61,6 @@ odc_ds_df = pd.DataFrame(
  'Copernicus annual Global Land Cover GeoTIFFs', 
  [copernicus_lc100_prod_name],
  ''],
-## Drones ##
-### WebODM DJI Mavic Mini
-['N/A',
- 'WebODM DJI MavicMini (DEM, RGBA)', 
- [WebODM_MavicMini_prod_name, WebODM_MavicMini_RGBA_prod_name],
- ''],
-## End Drones ##
  ])
 
 odc_ds_df_exp = odc_ds_df.explode(odc_ds_df_col_prds)
