@@ -19,8 +19,6 @@ jers1_sar_hh_product_type = 'JERS-1 SAR (HH)'
 copernicus_glc_product_type = 'Copernicus Global Land Cover'
 ## Black Marble Night Lights 
 black_marble_night_lights_product_type = 'Black Marble Night Lights'
-## WebODM DJI Mavic Mini
-webodm_mavicmini_product_type = 'WebODM DJI Mavic Mini'
 
 # File Path Variables #
 

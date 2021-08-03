@@ -49,8 +49,6 @@ s2_l2a_s3_cog_idx_scr_path = f'{sentinel_2_idx_scr_dir}/s2_l2a_aws_cog.py'
 copernicus_glc_idx_scr_path = f'{idx_scr_dir}/copernicus_lc100.py'
 ## Black Marble Night Lights
 black_marble_night_lights_idx_scr_path = f'{idx_scr_dir}/black_marble_night_lights.py'
-## Drones
-drone_idx_scr_path = f'{idx_scr_dir}/drone_indexer.py'
 ### End Script Paths ###
 
 ## End File Path Variables ##
@@ -128,14 +126,6 @@ f'{ls5_c1_l2_idx_scr_path} {fmt_desc_s3_bkt} '\
   'N/A',
   [black_marble_night_lights_prod_name],
   ['s3']],
-## Drones ##
-### WebODM DJI Mavic Mini
-[f'{drone_idx_scr_path} {fmt_desc_local_path} ' \
-  f'{fmt_desc_product_name}',
-  'N/A',
-  [WebODM_MavicMini_prod_name, WebODM_MavicMini_RGBA_prod_name],
-  ['local_file']],
-## End Drones ##
 ])
 
 

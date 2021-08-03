@@ -39,13 +39,6 @@ copernicus_lc100_prod_path = f'{prod_def_dir}/{copernicus_lc100_prod_name}.yaml'
 ## Black Marble Night Lights
 black_marble_night_lights_prod_name = 'black_marble_night_lights'
 black_marble_night_lights_prod_path = f'{prod_def_dir}/{black_marble_night_lights_prod_name}.yaml'
-## WebODM DJI Mavic Mini
-WebODM_MavicMini_prod_dir = f'{prod_def_dir}/WebODM_MavicMini'
-WebODM_MavicMini_prod_name = 'WebODM_MavicMini'
-WebODM_MavicMini_prod_path = f'{WebODM_MavicMini_prod_dir}/{WebODM_MavicMini_prod_name}.yaml'
-# Same as `WebODM_MavicMini`, but only RGBA measurements.
-WebODM_MavicMini_RGBA_prod_name = 'WebODM_MavicMini_RGBA'
-WebODM_MavicMini_RGBA_prod_path = f'{WebODM_MavicMini_prod_dir}/{WebODM_MavicMini_RGBA_prod_name}.yaml'
 ## End Product Names ##
 
 # Columns (products): 
@@ -101,15 +94,4 @@ prd_df = pd.DataFrame(
 [black_marble_night_lights_product_type, black_marble_night_lights_prod_name, 'N/A', '450m', 
  'EPSG:4326', black_marble_night_lights_prod_path,
  'N/A'],
-## Drones ##
-### WebODM DJI Mavic Mini
-# WebODM_MavicMini
-[webodm_mavicmini_product_type, WebODM_MavicMini_prod_name, 'N/A', 'varies', 
- 'EPSG:4326', WebODM_MavicMini_prod_path,
- 'N/A'],
- # WebODM_MavicMini_RGBA
- [webodm_mavicmini_product_type, WebODM_MavicMini_RGBA_prod_name, 'N/A', 'varies', 
- 'EPSG:4326', WebODM_MavicMini_RGBA_prod_path,
- 'N/A'],
-## End Drones ##
 ])

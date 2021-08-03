@@ -30,7 +30,7 @@ from queue import Empty
 
 import sys
 sys.path.append(os.environ.get('WORKDIR'))
-from utils.indexing_utils import get_coords, get_s3_url
+from utils.index.indexing_utils import get_coords, get_s3_url
 
 GUARDIAN = "GUARDIAN_QUEUE_EMPTY"
 AWS_PDS_TXT_SUFFIX = "MTL.txt"
