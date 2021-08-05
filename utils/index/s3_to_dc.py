@@ -5,10 +5,14 @@ and index datasets found into RDS
 Modified from original here: https://github.com/opendatacube/odc-tools/blob/develop/apps/dc_tools/odc/apps/dc_tools/s3_to_dc.py
 """
 import logging
+from os import path
 import sys
 from typing import Tuple
+import inspect
 
+import pathlib
 import click
+
 from datacube import Datacube
 from datacube.index.hl import Doc2Dataset
 from odc.aio import S3Fetcher, s3_find_glob
@@ -21,6 +25,8 @@ from odc.apps.dc_tools.utils import (IndexingException, allow_unsafe,
 from odc.index import parse_doc_stream
 from odc.index.stac import stac_transform, stac_transform_absolute
 
+dc = Datacube()
+index = dc.index
 
 # Grab the URL from the resulting S3 item
 def stream_urls(urls):
@@ -53,17 +59,15 @@ def dump_to_odc(
 
     ds_added = 0
     ds_failed = 0
+    
     uris_docs = parse_doc_stream(stream_docs(document_stream), on_error=doc_error, transform=transform)
-    # print(f'uris_docs: {list(uris_docs)}')
 
     for s3_uri, metadata in uris_docs:
         try:
-            # If this product 
-            # if len({'black_marble_night_lights'}.intersection(products)) > 0:
-                # if 'odc-dataset' not in s3_uri:
-                    # continue
-            print(f'metadata: {metadata}')
-            print(f's3_uri: {s3_uri}')
+            # If this product is one we generate metadata for, try to find the ODC metadata document.
+            if len({'black_marble_night_lights'}.intersection(products)) > 0:
+                if 'odc-dataset' not in s3_uri:
+                    continue
             index_update_dataset(metadata, s3_uri, dc, doc2ds, update, update_if_exists, allow_unsafe)
             ds_added += 1
         except (IndexingException) as e:
@@ -104,8 +108,22 @@ def cli(
     s3_region,
     product,
 ):
-    """ Iterate through files in an S3 bucket and add them to datacube"""
+    """
+    Add data for a datacube product in an S3 path to the datacube
 
+    s3_uri: str
+    
+        The S3 path, excluding the scheme. For the bucket mybucket and prefix mydata, this should be mybucket/mydata, not s3://mybucket/mydata.
+    
+    s3_region: str
+
+        The AWS region the bucket is in (e.g. us-west-2).
+    
+    product: str
+
+        The name of the datacube product to index data for (e.g. black_marble_night_lights).
+
+    """
     transform = None
     if stac:
         if absolute:
@@ -120,7 +138,6 @@ def cli(
         opts["RequestPayer"] = "requester"
 
     # Check datacube connection and products
-    dc = Datacube()
     odc_products = dc.list_products().name.values
 
     odc_products = set(odc_products)
@@ -134,12 +151,14 @@ def cli(
         sys.exit(1)
 
     # Get a generator from supplied S3 Uri for candidate documents
-    import inspect
-    print(f'signature: {inspect.signature(S3Fetcher)}')
-    
     fetcher = S3Fetcher(region_name=s3_region, aws_unsigned=no_sign_request)
+    # If no extension is specified, look for JSON files.
+    s3_uri_pathlib = pathlib.Path(s3_uri)
+    s3_uri_no_extension = s3_uri_pathlib.suffix == ''
+    s3_uri = str(s3_uri_pathlib)
+    if s3_uri_no_extension:
+        s3_uri = f's3://{s3_uri}/**/*.json' # '**/*.json'
     document_stream = stream_urls(s3_find_glob(s3_uri, skip_check=skip_check, s3=fetcher, **opts))
-    # print(f'document_stream: {document_stream}')
 
     added, failed = dump_to_odc(
         fetcher(document_stream),

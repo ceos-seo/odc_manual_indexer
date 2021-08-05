@@ -16,7 +16,7 @@ utm==0.7.0
 
 --extra-index-url="https://packages.dea.ga.gov.au"
 odc_apps_dc_tools # ==0.1.dev1151+g7a7947e
-'odc-apps-cloud[GCP,THREDDS]'
+# 'odc-apps-cloud[GCP,THREDDS]'
 # odc-ui
 # odc-index
 # odc-geom

@@ -22,7 +22,7 @@ from queue import Empty
 
 import sys
 sys.path.append(os.environ.get('WORKDIR'))
-from utils.indexing_utils import get_coords, get_s3_url
+from utils.index.indexing_utils import get_coords
 
 GUARDIAN = "GUARDIAN_QUEUE_EMPTY"
 
@@ -78,19 +78,13 @@ def make_metadata_doc(path, product_name):
     coordinates = get_coords(geo_ref_points, spatial_ref)
 
     doc_bands = {}
-    data_var_file_str_map = \
-        {'DNB_BRDF_corrected_NTL': 'DNB_BRDF-Corrected_NTL', 
-        'DNB_Lunar_Irradiance': 'DNB_Lunar_Irradiance',
-        'gap_filled_DNB_BRDF_corrected_NTL': 'Gap_Filled_DNB_BRDF-Corrected_NTL', 
-        'latest_high_quality_retrieval': 'Latest_High_Quality_Retrieval',
-        'mandatory_quality_flag': 'Mandatory_Quality_Flag', 
-        'QF_cloud_mask': 'QF_Cloud_Mask', 
-        'snow_flag': 'Snow_Flag'}
-    for data_var, data_var_file_str in data_var_file_str_map.items():
+    from utils.index.indexing_utils import products_meas_file_unq_substr_map
+    meas_file_unq_substr_map = products_meas_file_unq_substr_map[product_name]
+    for meas, meas_file_substr in meas_file_unq_substr_map.items():
         for tif_path in tif_paths:
-            match = re.search(data_var_file_str, tif_path)
+            match = re.search(meas_file_substr, tif_path)
             if match:
-                doc_bands[data_var] = {'path': tif_path}
+                doc_bands[meas] = {'path': tif_path}
                 break
 
     doc = {
