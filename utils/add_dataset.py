@@ -8,7 +8,6 @@ def add_dataset(doc, uri, index):
 
     resolver = Doc2Dataset(index)
     dataset, err  = resolver(doc, uri)
-    # print(f'dataset: {dataset}')
     existing_dataset = index.datasets.get(doc_id)
 
     if not existing_dataset:

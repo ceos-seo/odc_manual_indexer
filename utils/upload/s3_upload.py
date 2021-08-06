@@ -31,5 +31,5 @@ def s3_upload(directory, s3_uri):
             s3_client.upload_file(os.path.join(root, file),
                                 bucket, os.path.join(s3_prefix, file))
 
-    Parallel(n_jobs=joblib.cpu_count()*10, backend='loky')(delayed(upload_scene)(root, files)
+    Parallel(n_jobs=joblib.cpu_count()*5, backend='loky')(delayed(upload_scene)(root, files)
                         for root,dirs,files in tqdm(list(os.walk(directory)), desc='Uploading scenes to S3'))

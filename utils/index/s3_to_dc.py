@@ -12,18 +12,20 @@ import inspect
 
 import pathlib
 import click
+from tqdm import tqdm
 
 from datacube import Datacube
 from datacube.index.hl import Doc2Dataset
 from odc.aio import S3Fetcher, s3_find_glob
 from odc.apps.dc_tools.utils import (IndexingException, allow_unsafe,
                                      fail_on_missing_lineage,
-                                     index_update_dataset, no_sign_request,
-                                     request_payer, skip_check, skip_lineage,
-                                     transform_stac, transform_stac_absolute,
+                                     index_update_dataset,
+                                     request_payer, skip_lineage,
                                      update, update_if_exists, verify_lineage)
+# from odc.apps.dc_tools.utils import (no_sign_request, skip_check, 
+#                                      transform_stac, transform_stac_absolute)
 from odc.index import parse_doc_stream
-from odc.index.stac import stac_transform, stac_transform_absolute
+# from odc.index.stac import stac_transform, stac_transform_absolute
 
 dc = Datacube()
 index = dc.index
@@ -49,7 +51,6 @@ def dump_to_odc(
     document_stream,
     dc: Datacube,
     products: list,
-    transform=None,
     update=False,
     update_if_exists=False,
     allow_unsafe=False,
@@ -60,9 +61,9 @@ def dump_to_odc(
     ds_added = 0
     ds_failed = 0
     
-    uris_docs = parse_doc_stream(stream_docs(document_stream), on_error=doc_error, transform=transform)
+    uris_docs = list(parse_doc_stream(stream_docs(document_stream), on_error=doc_error, transform=None))
 
-    for s3_uri, metadata in uris_docs:
+    for s3_uri, metadata in tqdm(uris_docs, desc='Indexing scenes on S3'):
         try:
             # If this product is one we generate metadata for, try to find the ODC metadata document.
             if len({'black_marble_night_lights'}.intersection(products)) > 0:
@@ -77,37 +78,7 @@ def dump_to_odc(
     return ds_added, ds_failed
 
 
-@click.command("s3-to-dc")
-@skip_lineage
-@fail_on_missing_lineage
-@verify_lineage
-@transform_stac
-@transform_stac_absolute
-@update
-@update_if_exists
-@allow_unsafe
-@skip_check
-@no_sign_request
-@request_payer
-@click.argument("s3_uri", type=str, nargs=1)
-@click.argument("s3_region", type=str, nargs=1)
-@click.argument("product", type=str, nargs=1)
-def cli(
-    skip_lineage,
-    fail_on_missing_lineage,
-    verify_lineage,
-    stac,
-    absolute,
-    update,
-    update_if_exists,
-    allow_unsafe,
-    skip_check,
-    no_sign_request,
-    request_payer,
-    s3_uri,
-    s3_region,
-    product,
-):
+def s3_to_dc(s3_uri, s3_region, product):
     """
     Add data for a datacube product in an S3 path to the datacube
 
@@ -124,13 +95,6 @@ def cli(
         The name of the datacube product to index data for (e.g. black_marble_night_lights).
 
     """
-    transform = None
-    if stac:
-        if absolute:
-            transform = stac_transform_absolute
-        else:
-            transform = stac_transform
-
     candidate_products = product.split()
 
     opts = {}
@@ -151,14 +115,15 @@ def cli(
         sys.exit(1)
 
     # Get a generator from supplied S3 Uri for candidate documents
-    fetcher = S3Fetcher(region_name=s3_region, aws_unsigned=no_sign_request)
+    fetcher = S3Fetcher(region_name=s3_region, aws_unsigned=False)
     # If no extension is specified, look for JSON files.
     s3_uri_pathlib = pathlib.Path(s3_uri)
     s3_uri_no_extension = s3_uri_pathlib.suffix == ''
     s3_uri = str(s3_uri_pathlib)
     if s3_uri_no_extension:
-        s3_uri = f's3://{s3_uri}/**/*.json' # '**/*.json'
-    document_stream = stream_urls(s3_find_glob(s3_uri, skip_check=skip_check, s3=fetcher, **opts))
+        s3_uri = f'{s3_uri}/**/*.json'
+    s3_uri = f's3://{s3_uri}'
+    document_stream = stream_urls(s3_find_glob(s3_uri, skip_check=False, s3=fetcher, **opts))
 
     added, failed = dump_to_odc(
         fetcher(document_stream),
@@ -167,9 +132,8 @@ def cli(
         skip_lineage=skip_lineage,
         fail_on_missing_lineage=fail_on_missing_lineage,
         verify_lineage=verify_lineage,
-        transform=transform,
-        update=update,
-        update_if_exists=update_if_exists,
+        # update=update,
+        update_if_exists=True,
         allow_unsafe=allow_unsafe,
     )
 
@@ -177,7 +141,3 @@ def cli(
 
     if failed > 0:
         sys.exit(failed)
-
-
-if __name__ == "__main__":
-    cli()

@@ -148,7 +148,7 @@ def create_stac_odc_meta(product, scene_path, scene_raster_paths, s3_uri):
         crs = spatial_ref.GetAttrValue(
             "AUTHORITY", 0) + ":" + spatial_ref.GetAttrValue("AUTHORITY", 1)
 
-        vsi_s3_uri = s3_uri.replace('s3://', '/vsis3/')
+        vsi_s3_uri = f'/vsis3/{s3_uri}' # s3_uri.replace('s3://', '/vsis3/')
         doc_measurements = {}
         for measurement in measurements:
             meas_name = measurement['name']
