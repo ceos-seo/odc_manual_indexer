@@ -21,6 +21,7 @@ RUN unzip awscli-bundle.zip
 RUN python3 ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 RUN rm -rf awscli-bundle.zip awscli-bundle awscli-bundle.zip
 
+RUN pip3 install "aiobotocore[awscli,boto3]==1.3.3" odc-apps-dc-tools
 COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
