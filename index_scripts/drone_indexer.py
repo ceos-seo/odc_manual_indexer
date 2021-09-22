@@ -12,10 +12,15 @@ from datacube.utils import changes
 import rasterio
 import glob
 import xarray as xr
+import pandas as pd
+pd.set_option('max_columns', None)
 
 from multiprocessing import Process, current_process, Queue, Manager, cpu_count
 from time import sleep, time
 from queue import Empty
+
+from utils.index.indexing_utils import prod_type_file_match_exprs, prod_names_to_types, prod_names_to_platforms
+from collections import ChainMap
 
 GUARDIAN = "GUARDIAN_QUEUE_EMPTY"
 
@@ -154,8 +159,8 @@ def iterate_datasets(path, product_name, config, unsafe):
     dc = datacube.Datacube(config=config)
     prod_meas_set = set(dc.list_measurements().loc[product_name].name)
     prod_info = dc.list_products()
-    product_type = prod_info[prod_info.name == product_name].product_type.values[0]
-    platform_code = prod_info[prod_info.name == product_name].platform.values[0]
+    product_type = prod_names_to_types[product_name]
+    platform_code = prod_names_to_platforms[product_name]
 
     worker_count = cpu_count() * 2
 
@@ -166,8 +171,6 @@ def iterate_datasets(path, product_name, config, unsafe):
         proc.start()
 
     # Search the lowest-level directories with 'DEM-clip.tif' and 'Ortho-clip.tif' files.
-    from utils.index.indexing_utils import prod_type_file_match_exprs, prod_type_meas_to_file_match_exprs
-    from collections import ChainMap
     file_match_exprs_to_meas = prod_type_file_match_exprs[product_type]
     meas_to_file_match_exprs = \
         dict(ChainMap(*[{meas:expr for meas in meas_list} \

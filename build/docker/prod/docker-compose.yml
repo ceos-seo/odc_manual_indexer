@@ -7,6 +7,7 @@ services:
       context: ${DKR_CMP_CONTEXT}
       dockerfile: build/docker/prod/Dockerfile
       args:
+        BASE_IMG: ${BASE_IMG}
         WORKDIR: ${WORKDIR}
     command: "tail -f /dev/null"
     environment:

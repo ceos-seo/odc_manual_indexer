@@ -9,7 +9,7 @@ IMG_REPO?=jcrattzama/odc_manual_indexer
 IMG_VER?=
 ODC_VER?=1.8.3
 
-BASE_IMG=jcrattzama/datacube-base:odc1.8.3
+BASE_IMG=jcrattzama/datacube-base:odc1.8.3_odc_gee
 
 PROD_OUT_IMG?="${IMG_REPO}:odc${ODC_VER}${IMG_VER}"
 DEV_OUT_IMG?="${IMG_REPO}:odc${ODC_VER}${IMG_VER}_dev"
@@ -20,6 +20,9 @@ export BASE_IMG=${BASE_IMG}; export REQS_PATH=${REQS_PATH}
 PROD_COMMON_EXPRTS=export OUT_IMG=${PROD_OUT_IMG}; ${COMMON_EXPRTS}
 DEV_COMMON_EXPRTS=export OUT_IMG=${DEV_OUT_IMG}; ${COMMON_EXPRTS}
 
+# Tell make `build` is not the `build` dir - just a target.
+.PHONY: build
+
 ## Production ##
 up:
 	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) up -d --build)
@@ -27,8 +30,11 @@ up:
 up-no-build:
 	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) up -d)
 
-build-tag: # -e TAG=<tag> OR -e IMG_VER=<version>
+build:
 	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) build)
+
+build-no-cache:
+	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) build --no-cache)
 
 down: 
 	(${PROD_COMMON_EXPRTS}; $(docker_compose_prod) down --remove-orphans)
@@ -48,8 +54,6 @@ push:
 
 pull:
 	docker pull ${PROD_OUT_IMG}
-
-build-and-push: build-tag push
 ## End Production ##
 
 ## Development ##
@@ -75,7 +79,7 @@ dev-restart-no-build: dev-down dev-up-no-build
 dev-build-no-cache:
 	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) build --no-cache)
 
-dev-build-tag: # -e TAG=<tag> OR -e IMG_VER=<version>
+dev-build:
 	(${DEV_COMMON_EXPRTS}; $(docker_compose_dev) build)
 
 dev-push:
@@ -83,8 +87,6 @@ dev-push:
 
 dev-pull:
 	docker pull ${DEV_OUT_IMG}
-
-build-and-push: build-tag push
 ## End Development ##
 
 ## ODC Docker Network ##

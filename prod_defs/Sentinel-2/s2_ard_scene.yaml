@@ -8,7 +8,7 @@ metadata:
     instrument:
         name: MSI
     processing_level: L2A
-    product_type: force-l2ps
+    product_type: Sentinel-2
     format:
         name: GeoTiff
 

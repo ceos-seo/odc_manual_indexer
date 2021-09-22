@@ -1,0 +1,42 @@
+name: WebODM_MavicMini
+description: WebODM MavicMini N Limit COLO SPGS (DEM, RGBA)
+metadata_type: eo
+
+metadata:
+  product:
+    name: WebODM_MavicMini
+  platform:
+    code: WebODM
+  product_type: MavicMini
+  format:
+    name: GeoTiff
+
+storage:
+    crs: EPSG:4326
+    resolution:
+      longitude: 2.306486953632898e-07
+        #0.0399962
+      latitude: 1.7980355708770681e-07
+        #0.0399952
+
+measurements:
+  - name: 'elevation'
+    dtype: float32
+    nodata: -9999
+    units: '1'
+  - name: 'red'
+    dtype: uint8
+    nodata: -1
+    units: '1'
+  - name: 'green'
+    dtype: uint8
+    nodata: -1
+    units: '1'
+  - name: 'blue'
+    dtype: uint8
+    nodata: -1
+    units: '1'
+  - name: 'alpha'
+    dtype: uint8
+    nodata: -1
+    units: '1'
